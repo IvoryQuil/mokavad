@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Leer Firebase DB</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <h2>Contenido completo de la base de datos</h2>
+  <pre id="salida">Cargando...</pre>
+
+  <script>
+    // Configuración Firebase (ya conectada a tu base)
+    const firebaseConfig = {
+      databaseURL: "https://mokavad-8700c-default-rtdb.firebaseio.com/"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Leer todo el contenido raíz
+    db.ref("/").once("value").then(snapshot => {
+      const data = snapshot.val();
+      document.getElementById("salida").textContent = JSON.stringify(data, null, 2);
+    }).catch(error => {
+      document.getElementById("salida").textContent = "Error al leer datos: " + error;
+    });
+  </script>
+</body>
+</html>
