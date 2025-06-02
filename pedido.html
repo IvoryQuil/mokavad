@@ -1,45 +1,140 @@
-<!-- Sección del menú dinámico desde Firebase -->
-<section id="productos">
+<!-- Sección de Categorías -->
+<section id="categorias" style="padding: 4rem 0; background-color: #1a1a1a;">
    <div class="row">
+      <!-- Menú de Categorías -->
       <div class="col-four">
-         <h3>Categorías</h3>
-         <ul id="categoria-menu">
-            <li><a href="#" onclick="mostrarCategoria('bebestibles')">Bebestibles</a></li>
-            <li><a href="#" onclick="mostrarCategoria('comida')">Comida</a></li>
-            <li><a href="#" onclick="mostrarCategoria('postres')">Postres</a></li>
+         <h3 style="color: #ffffff;">Categorías</h3>
+         <ul id="categoria-menu" style="list-style: none; padding-left: 0; line-height: 2;">
+            <li><a href="#" onclick="mostrarCategoria('bebestibles')" style="color: #dddddd; text-decoration: none;">Bebestibles</a></li>
+            <li><a href="#" onclick="mostrarCategoria('comida')" style="color: #dddddd; text-decoration: none;">Comida</a></li>
+            <li><a href="#" onclick="mostrarCategoria('postres')" style="color: #dddddd; text-decoration: none;">Postres</a></li>
          </ul>
       </div>
+
+      <!-- Contenido de la Categoría -->
       <div class="col-eight">
-         <h3 id="titulo-categoria">Selecciona una categoría</h3>
-         <div id="productos-lista" style="white-space: pre-wrap; background: #222; padding: 1rem; border-radius: 8px;">
-            <!-- Productos de Firebase se mostrarán aquí -->
-         </div>
+         <h3 id="titulo-categoria" style="color: #ffffff;">Selecciona una categoría</h3>
+         <form id="form-pedido" style="color: #dddddd; padding-top: 1rem;">
+            <div id="contenido-categoria">
+               <!-- Aquí aparecerá el contenido dinámico -->
+            </div>
+            <button type="submit" style="margin-top: 1rem; padding: 0.5rem 1rem;">Enviar Pedido</button>
+         </form>
+         <div id="mensaje" style="margin-top: 1rem; color: #aaffaa;"></div>
       </div>
    </div>
 </section>
 
 <script>
-   const firebaseConfig = {
-      databaseURL: "https://mokavad-8700c-default-rtdb.firebaseio.com/"
-   };
+   let productosActuales = {};
 
-   firebase.initializeApp(firebaseConfig);
-   const db = firebase.database();
+   async function mostrarCategoria(categoria) {
+      const titulo = document.getElementById("titulo-categoria");
+      const contenido = document.getElementById("contenido-categoria");
+      const mensaje = document.getElementById("mensaje");
+      mensaje.textContent = ""; // limpio mensajes
 
-   function mostrarCategoria(categoria) {
-      document.getElementById("titulo-categoria").textContent = categoria.charAt(0).toUpperCase() + categoria.slice(1);
-      db.ref("/inventario").once("value").then(snapshot => {
-         const datos = snapshot.val();
-         let resultado = '';
-         for (const id in datos) {
-            const item = datos[id];
-            if (item.categoria === categoria) {
-               resultado += `• ${item.nombre} - $${item.precio} (${item.stock} disponibles)\n`;
+      titulo.textContent = categoria.charAt(0).toUpperCase() + categoria.slice(1);
+
+      if (categoria === "bebestibles") {
+         try {
+            const url = "https://mokavad-8700c-default-rtdb.firebaseio.com/platos/bebestibles.json";
+            const response = await fetch(url);
+            if (!response.ok) throw new Error("Error al cargar los datos");
+            const data = await response.json();
+
+            productosActuales = data || {};
+
+            let html = "<ul style='list-style:none; padding-left:0;'>";
+            for (const key in data) {
+               if (data.hasOwnProperty(key)) {
+                  const plato = data[key];
+                  html += `
+                     <li style="margin-bottom: 1rem;">
+                        <strong>${plato.nombre}</strong><br>
+                        <em>${plato.descripcion}</em><br>
+                        Precio: $${plato.precio.toLocaleString()}<br>
+                        Cantidad: <input type="number" name="${key}" min="0" value="0" style="width: 60px;">
+                     </li>
+                  `;
+               }
             }
+            html += "</ul>";
+
+            contenido.innerHTML = html;
+         } catch (error) {
+            contenido.innerHTML = `<p>Error cargando la categoría: ${error.message}</p>`;
          }
-         document.getElementById("productos-lista").textContent = resultado || "No hay productos en esta categoría.";
-      }).catch(error => {
-         document.getElementById("productos-lista").textContent = "Error: " + error;
-      });
+      } else if (categoria === "comida") {
+         contenido.innerHTML = `
+            <p>Pizza Margarita</p>
+            <p>Sándwich Veggie</p>
+            <p>Panini de Pollo</p>
+         `;
+      } else if (categoria === "postres") {
+         contenido.innerHTML = `
+            <p>Brownie</p>
+            <p>Cheesecake</p>
+            <p>Galletas Caseras</p>
+         `;
+      } else {
+         contenido.innerHTML = "<p>Categoría no encontrada.</p>";
+      }
    }
+
+   // Enviar pedido a Firebase
+   document.getElementById("form-pedido").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const mensaje = document.getElementById("mensaje");
+      mensaje.style.color = "#aaffaa";
+      mensaje.textContent = "Enviando pedido...";
+
+      const formData = new FormData(e.target);
+      const pedido = {
+         fecha: new Date().toISOString(),
+         productos: {},
+      };
+
+      for (const [key, value] of formData.entries()) {
+         const cantidad = parseInt(value);
+         if (cantidad > 0 && productosActuales[key]) {
+            pedido.productos[key] = {
+               nombre: productosActuales[key].nombre,
+               cantidad: cantidad,
+               precio_unitario: productosActuales[key].precio,
+               subtotal: productosActuales[key].precio * cantidad,
+            };
+         }
+      }
+
+      if (Object.keys(pedido.productos).length === 0) {
+         mensaje.style.color = "#ff5555";
+         mensaje.textContent = "Selecciona al menos un producto para hacer el pedido.";
+         return;
+      }
+
+      // Calcular total
+      pedido.total = Object.values(pedido.productos).reduce((acc, item) => acc + item.subtotal, 0);
+
+      try {
+         const urlPedidos = "https://mokavad-8700c-default-rtdb.firebaseio.com/pedidos.json";
+
+         const response = await fetch(urlPedidos, {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify(pedido),
+         });
+
+         if (!response.ok) throw new Error("Error enviando pedido");
+
+         mensaje.textContent = "Pedido enviado con éxito!";
+         e.target.reset(); // limpiar formulario
+      } catch (error) {
+         mensaje.style.color = "#ff5555";
+         mensaje.textContent = "Error al enviar el pedido: " + error.message;
+      }
+   });
 </script>
