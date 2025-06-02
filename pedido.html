@@ -1,31 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Leer Firebase DB</title>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-</head>
-<body>
-  <h2>Contenido completo de la base de datos</h2>
-  <pre id="salida">Cargando...</pre>
+<!-- Sección del menú dinámico desde Firebase -->
+<section id="productos">
+   <div class="row">
+      <div class="col-four">
+         <h3>Categorías</h3>
+         <ul id="categoria-menu">
+            <li><a href="#" onclick="mostrarCategoria('bebestibles')">Bebestibles</a></li>
+            <li><a href="#" onclick="mostrarCategoria('comida')">Comida</a></li>
+            <li><a href="#" onclick="mostrarCategoria('postres')">Postres</a></li>
+         </ul>
+      </div>
+      <div class="col-eight">
+         <h3 id="titulo-categoria">Selecciona una categoría</h3>
+         <div id="productos-lista" style="white-space: pre-wrap; background: #222; padding: 1rem; border-radius: 8px;">
+            <!-- Productos de Firebase se mostrarán aquí -->
+         </div>
+      </div>
+   </div>
+</section>
 
-  <script>
-    // Configuración Firebase (ya conectada a tu base)
-    const firebaseConfig = {
+<script>
+   const firebaseConfig = {
       databaseURL: "https://mokavad-8700c-default-rtdb.firebaseio.com/"
-    };
+   };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+   firebase.initializeApp(firebaseConfig);
+   const db = firebase.database();
 
-    // Leer todo el contenido raíz
-    db.ref("/").once("value").then(snapshot => {
-      const data = snapshot.val();
-      document.getElementById("salida").textContent = JSON.stringify(data, null, 2);
-    }).catch(error => {
-      document.getElementById("salida").textContent = "Error al leer datos: " + error;
-    });
-  </script>
-</body>
-</html>
+   function mostrarCategoria(categoria) {
+      document.getElementById("titulo-categoria").textContent = categoria.charAt(0).toUpperCase() + categoria.slice(1);
+      db.ref("/inventario").once("value").then(snapshot => {
+         const datos = snapshot.val();
+         let resultado = '';
+         for (const id in datos) {
+            const item = datos[id];
+            if (item.categoria === categoria) {
+               resultado += `• ${item.nombre} - $${item.precio} (${item.stock} disponibles)\n`;
+            }
+         }
+         document.getElementById("productos-lista").textContent = resultado || "No hay productos en esta categoría.";
+      }).catch(error => {
+         document.getElementById("productos-lista").textContent = "Error: " + error;
+      });
+   }
+</script>
