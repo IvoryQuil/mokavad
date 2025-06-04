@@ -19,7 +19,9 @@
          <h3 id="titulo-categoria" style="color: #ffffff;">Selecciona una categoría</h3>
          <form id="form-pedido" style="color: #dddddd; padding-top: 1rem;">
             <div id="contenido-categoria"></div>
-            <button type="submit" style="margin-top: 1rem; padding: 0.5rem 1rem;">Enviar Pedido</button>
+            <button type="button" onclick="mostrarResumen()" style="margin-top: 1rem; padding: 0.5rem 1rem;">Ver Resumen</button>
+            <div id="resumen-pedido" style="margin-top: 1rem; display: none;"></div>
+            <button type="submit" id="confirmar-btn" style="margin-top: 1rem; display: none; padding: 0.5rem 1rem;">Confirmar Pedido</button>
          </form>
          <div id="mensaje" style="margin-top: 1rem; color: #aaffaa;"></div>
       </div>
@@ -50,25 +52,16 @@
 </style>
 
 <script>
-   // Guardamos la cantidad total de productos pedidos en todas las categorías
    let productosPedidos = {};
-
-   // Guardamos productos actuales global para la sumatoria en el submit
    let productosActuales = {};
 
    function cambiarCantidad(id, cambio) {
+      const cantidadActual = (productosPedidos[id] || 0) + cambio;
+      productosPedidos[id] = Math.max(cantidadActual, 0);
       const span = document.getElementById(`cantidad-${id}`);
-      let cantidadActual = productosPedidos[id] || 0;
-
-      cantidadActual += cambio;
-      if (cantidadActual < 0) cantidadActual = 0;
-
-      productosPedidos[id] = cantidadActual;
-      span.textContent = cantidadActual;
-
-      // Si hay un input oculto para el producto actual, actualizarlo también
+      if (span) span.textContent = productosPedidos[id];
       const input = document.getElementById(`input-${id}`);
-      if (input) input.value = cantidadActual;
+      if (input) input.value = productosPedidos[id];
    }
 
    function esProducto(obj) {
@@ -79,8 +72,11 @@
       const titulo = document.getElementById("titulo-categoria");
       const contenido = document.getElementById("contenido-categoria");
       const mensaje = document.getElementById("mensaje");
-      mensaje.textContent = "";
+      const resumenDiv = document.getElementById("resumen-pedido");
+      resumenDiv.style.display = "none";
+      document.getElementById("confirmar-btn").style.display = "none";
 
+      mensaje.textContent = "";
       const nombreFormateado = categoria.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
       titulo.textContent = nombreFormateado;
 
@@ -90,7 +86,6 @@
          const response = await fetch(url);
          if (!response.ok) throw new Error("Error al cargar los datos");
          const data = await response.json();
-
          let html = "";
 
          if (!data || Object.keys(data).length === 0) {
@@ -98,72 +93,59 @@
             return;
          }
 
-         // Acumulamos productos nuevos en productosActuales sin borrar los anteriores
+         productosActuales = { ...productosActuales }; // mantener existentes
+
          for (const key in data) {
             const valor = data[key];
-
             if (esProducto(valor)) {
                const id = `directo__${key}`;
                productosActuales[id] = valor;
-            } else if (typeof valor === 'object') {
+            } else {
                for (const subkey in valor) {
-                  const plato = valor[subkey];
                   const id = `${key}__${subkey}`;
-                  productosActuales[id] = plato;
+                  productosActuales[id] = valor[subkey];
                }
             }
          }
 
-         // Construir el HTML para mostrar la categoría (igual que antes)
          for (const key in data) {
             const valor = data[key];
-
             if (esProducto(valor)) {
                const id = `directo__${key}`;
-
-               if (!html.includes(`<h4>`)) {
-                  html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">Productos</h4>`;
-                  html += "<ul style='list-style:none; padding-left:0;'>";
-               }
-
-               const cantidadGuardada = productosPedidos[id] || 0;
-
+               const cantidad = productosPedidos[id] || 0;
                html += `
-                  <li style="margin-bottom: 1rem;">
-                     <strong>${valor.nombre}</strong><br>
-                     <em>${valor.descripcion || ''}</em><br>
-                     Precio: $${valor.precio.toLocaleString()}<br>
-                     <div class="cantidad-control" data-id="${id}">
-                        <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
-                        <span id="cantidad-${id}">${cantidadGuardada}</span>
-                        <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
-                     </div>
-                     <input type="hidden" name="${id}" id="input-${id}" value="${cantidadGuardada}">
-                  </li>
-               `;
-
-            } else if (typeof valor === 'object') {
-               html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>`;
-               html += "<ul style='list-style:none; padding-left:0;'>";
-
+                  <h4 style="margin-top: 1.5rem; color: #ffcc00;">Productos</h4>
+                  <ul style='list-style:none; padding-left:0;'>
+                     <li style="margin-bottom: 1rem;">
+                        <strong>${valor.nombre}</strong><br>
+                        <em>${valor.descripcion || ''}</em><br>
+                        Precio: $${valor.precio.toLocaleString()}<br>
+                        <div class="cantidad-control">
+                           <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
+                           <span id="cantidad-${id}">${cantidad}</span>
+                           <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
+                        </div>
+                        <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
+                     </li>
+                  </ul>`;
+            } else {
+               html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4><ul style='list-style:none; padding-left:0;'>`;
                for (const subkey in valor) {
                   const plato = valor[subkey];
                   const id = `${key}__${subkey}`;
-                  const cantidadGuardada = productosPedidos[id] || 0;
-
+                  const cantidad = productosPedidos[id] || 0;
                   html += `
                      <li style="margin-bottom: 1rem;">
                         <strong>${plato.nombre}</strong><br>
                         <em>${plato.descripcion || ''}</em><br>
                         Precio: $${plato.precio.toLocaleString()}<br>
-                        <div class="cantidad-control" data-id="${id}">
+                        <div class="cantidad-control">
                            <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
-                           <span id="cantidad-${id}">${cantidadGuardada}</span>
+                           <span id="cantidad-${id}">${cantidad}</span>
                            <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
                         </div>
-                        <input type="hidden" name="${id}" id="input-${id}" value="${cantidadGuardada}">
-                     </li>
-                  `;
+                        <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
+                     </li>`;
                }
                html += "</ul>";
             }
@@ -176,14 +158,39 @@
       }
    }
 
+   function mostrarResumen() {
+      const resumenDiv = document.getElementById("resumen-pedido");
+      resumenDiv.innerHTML = "";
+      let total = 0;
+      let contenido = "<strong>Resumen del pedido:</strong><ul style='margin-top: 0.5rem;'>";
+
+      for (const id in productosPedidos) {
+         const cantidad = productosPedidos[id];
+         const producto = productosActuales[id];
+         if (cantidad > 0 && producto) {
+            const subtotal = cantidad * producto.precio;
+            total += subtotal;
+            contenido += `<li>${producto.nombre} - $${producto.precio.toLocaleString()} x ${cantidad} = $${subtotal.toLocaleString()}</li>`;
+         }
+      }
+
+      if (total === 0) {
+         resumenDiv.innerHTML = "<p style='color: #ff5555;'>No has seleccionado productos aún.</p>";
+         return;
+      }
+
+      contenido += `</ul><strong>Total: $${total.toLocaleString()}</strong>`;
+      resumenDiv.innerHTML = contenido;
+      resumenDiv.style.display = "block";
+      document.getElementById("confirmar-btn").style.display = "inline-block";
+   }
+
    document.getElementById("form-pedido").addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const mensaje = document.getElementById("mensaje");
-      mensaje.style.color = "#aaffaa";
       mensaje.textContent = "Enviando pedido...";
+      mensaje.style.color = "#aaffaa";
 
-      // Construimos el pedido usando productosPedidos para recordar cantidades acumuladas
       const pedido = {
          fecha: new Date().toISOString(),
          productos: {},
@@ -191,48 +198,38 @@
 
       for (const id in productosPedidos) {
          const cantidad = productosPedidos[id];
-         if (cantidad > 0) {
-            if (productosActuales[id]) {
-               pedido.productos[id] = {
-                  nombre: productosActuales[id].nombre,
-                  cantidad: cantidad,
-                  precio_unitario: productosActuales[id].precio,
-                  subtotal: productosActuales[id].precio * cantidad,
-               };
-            }
+         const producto = productosActuales[id];
+         if (cantidad > 0 && producto) {
+            pedido.productos[id] = {
+               nombre: producto.nombre,
+               cantidad: cantidad,
+               precio_unitario: producto.precio,
+               subtotal: cantidad * producto.precio,
+            };
          }
       }
 
-      if (Object.keys(pedido.productos).length === 0) {
-         mensaje.style.color = "#ff5555";
-         mensaje.textContent = "Selecciona al menos un producto para hacer el pedido.";
-         return;
-      }
-
-      pedido.total = Object.values(pedido.productos).reduce((acc, item) => acc + item.subtotal, 0);
+      pedido.total = Object.values(pedido.productos).reduce((acc, p) => acc + p.subtotal, 0);
 
       try {
-         const urlPedidos = "https://mokavad-8700c-default-rtdb.firebaseio.com/pedidos.json";
-         const response = await fetch(urlPedidos, {
+         const response = await fetch("https://mokavad-8700c-default-rtdb.firebaseio.com/pedidos.json", {
             method: "POST",
-            headers: {
-               "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(pedido),
          });
 
-         if (!response.ok) throw new Error("Error enviando pedido");
+         if (!response.ok) throw new Error("Error al enviar pedido");
 
-         mensaje.textContent = "¡Pedido enviado con éxito!";
-
-         // Limpiamos el pedido y visualmente las cantidades en pantalla
+         mensaje.innerHTML = `<strong>Pedido enviado con éxito</strong><br>Total: $${pedido.total.toLocaleString()}`;
          productosPedidos = {};
+         document.getElementById("resumen-pedido").style.display = "none";
+         document.getElementById("confirmar-btn").style.display = "none";
          document.querySelectorAll('[id^="cantidad-"]').forEach(el => el.textContent = "0");
          document.querySelectorAll('[id^="input-"]').forEach(el => el.value = "0");
 
-      } catch (error) {
+      } catch (err) {
          mensaje.style.color = "#ff5555";
-         mensaje.textContent = "Error al enviar el pedido: " + error.message;
+         mensaje.textContent = "Error al enviar pedido: " + err.message;
       }
    });
 </script>
