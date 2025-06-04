@@ -166,12 +166,28 @@
 
          productosActuales = { ...productosActuales }; // mantener existentes
 
+         // Limpiar productosActuales de esta categoria (opcional)
+         for (const key in productosActuales) {
+            if (key.startsWith("directo__") || key.startsWith(categoria + "__")) {
+               delete productosActuales[key];
+            }
+         }
+
+         // Detectar si hay productos directos (sin subcategorías)
+         let productosDirectos = {};
+         let subcategorias = {};
+
          for (const key in data) {
             const valor = data[key];
             if (esProducto(valor)) {
+               // Producto directo
                const id = `directo__${key}`;
+               productosDirectos[id] = valor;
                productosActuales[id] = valor;
             } else {
+               // Subcategoría con productos
+               subcategorias[key] = valor;
+               // Añadir productos subcategoría a productosActuales
                for (const subkey in valor) {
                   const id = `${key}__${subkey}`;
                   productosActuales[id] = valor[subkey];
@@ -179,47 +195,50 @@
             }
          }
 
-         for (const key in data) {
-            const valor = data[key];
-            if (esProducto(valor)) {
-               const id = `directo__${key}`;
+         // Renderizar productos directos si existen, solo una vez el título "Productos"
+         if (Object.keys(productosDirectos).length > 0) {
+            html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">Productos</h4><ul style='list-style:none; padding-left:0;'>`;
+            for (const id in productosDirectos) {
+               const producto = productosDirectos[id];
                const cantidad = productosPedidos[id] || 0;
                html += `
-                  <h4 style="margin-top: 1.5rem; color: #ffcc00;">Productos</h4>
-                  <ul style='list-style:none; padding-left:0;'>
-                     <li style="margin-bottom: 1rem;">
-                        <strong>${valor.nombre}</strong><br>
-                        <em>${valor.descripcion || ''}</em><br>
-                        Precio: $${valor.precio.toLocaleString()}<br>
-                        <div class="cantidad-control">
-                           <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
-                           <span id="cantidad-${id}">${cantidad}</span>
-                           <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
-                        </div>
-                        <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
-                     </li>
-                  </ul>`;
-            } else {
-               html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4><ul style='list-style:none; padding-left:0;'>`;
-               for (const subkey in valor) {
-                  const plato = valor[subkey];
-                  const id = `${key}__${subkey}`;
-                  const cantidad = productosPedidos[id] || 0;
-                  html += `
-                     <li style="margin-bottom: 1rem;">
-                        <strong>${plato.nombre}</strong><br>
-                        <em>${plato.descripcion || ''}</em><br>
-                        Precio: $${plato.precio.toLocaleString()}<br>
-                        <div class="cantidad-control">
-                           <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
-                           <span id="cantidad-${id}">${cantidad}</span>
-                           <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
-                        </div>
-                        <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
-                     </li>`;
-               }
-               html += "</ul>";
+                  <li style="margin-bottom: 1rem;">
+                     <strong>${producto.nombre}</strong><br>
+                     <em>${producto.descripcion || ''}</em><br>
+                     Precio: $${producto.precio.toLocaleString()}<br>
+                     <div class="cantidad-control">
+                        <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
+                        <span id="cantidad-${id}">${cantidad}</span>
+                        <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
+                     </div>
+                     <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
+                  </li>`;
             }
+            html += "</ul>";
+         }
+
+         // Renderizar subcategorías
+         for (const subcat in subcategorias) {
+            const productosSubcat = subcategorias[subcat];
+            html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">${subcat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4><ul style='list-style:none; padding-left:0;'>`;
+            for (const key in productosSubcat) {
+               const plato = productosSubcat[key];
+               const id = `${subcat}__${key}`;
+               const cantidad = productosPedidos[id] || 0;
+               html += `
+                  <li style="margin-bottom: 1rem;">
+                     <strong>${plato.nombre}</strong><br>
+                     <em>${plato.descripcion || ''}</em><br>
+                     Precio: $${plato.precio.toLocaleString()}<br>
+                     <div class="cantidad-control">
+                        <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
+                        <span id="cantidad-${id}">${cantidad}</span>
+                        <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
+                     </div>
+                     <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
+                  </li>`;
+            }
+            html += "</ul>";
          }
 
          contenido.innerHTML = html;
@@ -292,15 +311,17 @@
          if (!response.ok) throw new Error("Error al enviar pedido");
 
          mensaje.innerHTML = `<strong>Pedido enviado con éxito</strong><br>Total: $${pedido.total.toLocaleString()}`;
+
+         // Reiniciar pedido
          productosPedidos = {};
+         document.getElementById("contenido-categoria").innerHTML = "";
+         document.getElementById("titulo-categoria").textContent = "Selecciona una categoría";
          document.getElementById("resumen-pedido").style.display = "none";
          document.getElementById("confirmar-btn").style.display = "none";
-         document.querySelectorAll('[id^="cantidad-"]').forEach(el => el.textContent = "0");
-         document.querySelectorAll('[id^="input-"]').forEach(el => el.value = "0");
 
-      } catch (err) {
+      } catch (error) {
          mensaje.style.color = "#ff5555";
-         mensaje.textContent = "Error al enviar pedido: " + err.message;
+         mensaje.textContent = "Error al enviar pedido: " + error.message;
       }
    });
 </script>
