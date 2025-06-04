@@ -1,3 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Menú con Categorías y Pedido</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #ddd;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 960px;
+    margin: auto;
+    padding: 0 1rem;
+  }
+  .col-four {
+    flex: 0 0 33.3333%;
+    padding: 1rem;
+  }
+  .col-eight {
+    flex: 0 0 66.6666%;
+    padding: 1rem;
+  }
+  h3 {
+    margin-top: 0;
+  }
+  ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  ul li {
+    margin-bottom: 0.8rem;
+  }
+  a {
+    color: #dddddd;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  button {
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  button:hover {
+    background-color: #555;
+  }
+  .cantidad-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+  }
+  .cantidad-control button {
+    background-color: #444;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .cantidad-control span {
+    min-width: 24px;
+    text-align: center;
+  }
+  #mensaje {
+    margin-top: 1rem;
+  }
+  #resumen-pedido ul {
+    margin-top: 0.5rem;
+  }
+  /* Responsive */
+  @media (max-width: 700px) {
+    .col-four, .col-eight {
+      flex: 0 0 100%;
+    }
+  }
+</style>
+</head>
+<body>
+
 <!-- Sección de Categorías -->
 <section id="categorias" style="padding: 4rem 0; background-color: #1a1a1a;">
    <div class="row">
@@ -5,12 +99,12 @@
       <div class="col-four">
          <h3 style="color: #ffffff;">Categorías</h3>
          <ul id="categoria-menu" style="list-style: none; padding-left: 0; line-height: 2;">
-            <li><a href="#" onclick="mostrarCategoria('bebestibles')" style="color: #dddddd; text-decoration: none;">Bebestibles</a></li>
-            <li><a href="#" onclick="mostrarCategoria('desayunos_y_onces')" style="color: #dddddd; text-decoration: none;">Desayunos y Onces</a></li>
-            <li><a href="#" onclick="mostrarCategoria('menu_almuerzo')" style="color: #dddddd; text-decoration: none;">Menú Almuerzo</a></li>
-            <li><a href="#" onclick="mostrarCategoria('pasteleria')" style="color: #dddddd; text-decoration: none;">Pastelería</a></li>
-            <li><a href="#" onclick="mostrarCategoria('pizzas')" style="color: #dddddd; text-decoration: none;">Pizzas</a></li>
-            <li><a href="#" onclick="mostrarCategoria('sandwich')" style="color: #dddddd; text-decoration: none;">Sándwich</a></li>
+            <li><a href="#" onclick="mostrarCategoria('bebestibles')">Bebestibles</a></li>
+            <li><a href="#" onclick="mostrarCategoria('desayunos_y_onces')">Desayunos y Onces</a></li>
+            <li><a href="#" onclick="mostrarCategoria('menu_almuerzo')">Menú Almuerzo</a></li>
+            <li><a href="#" onclick="mostrarCategoria('pasteleria')">Pastelería</a></li>
+            <li><a href="#" onclick="mostrarCategoria('pizzas')">Pizzas</a></li>
+            <li><a href="#" onclick="mostrarCategoria('sandwich')">Sándwich</a></li>
          </ul>
       </div>
 
@@ -27,29 +121,6 @@
       </div>
    </div>
 </section>
-
-<style>
-   .cantidad-control {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 0.3rem;
-   }
-   .cantidad-control button {
-      background-color: #444;
-      color: white;
-      border: none;
-      width: 30px;
-      height: 30px;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 4px;
-   }
-   .cantidad-control span {
-      min-width: 24px;
-      text-align: center;
-   }
-</style>
 
 <script>
    let productosPedidos = {};
@@ -233,3 +304,6 @@
       }
    });
 </script>
+
+</body>
+</html>
