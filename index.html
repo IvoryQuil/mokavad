@@ -12,6 +12,9 @@
    <link rel="stylesheet" href="css/main.css">
    <link rel="stylesheet" href="css/vendor.css">     
 
+   <!-- Font Awesome (para iconos de redes sociales) -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
    <!-- script -->
    <script src="js/modernizr.js"></script>
 
@@ -51,6 +54,73 @@
       #faq *, #faq h5, #faq h1, #faq ul li {
          color: #000000 !important;
       }
+
+      /* Estilo para la nueva sección "¿Qué nos diferencia?" */
+      #nos-diferencia {
+         background: #222;
+         padding: 4rem 2rem;
+         text-align: center;
+         margin-top: 2rem;
+         margin-bottom: 2rem;
+         border-radius: 8px;
+      }
+
+      #nos-diferencia h5, #nos-diferencia h1 {
+         color: #f4b400 !important;
+         margin-bottom: 1rem;
+      }
+
+      #nos-diferencia p {
+         color: #ddd !important;
+         margin-bottom: 2rem;
+         max-width: 700px;
+         margin-left: auto;
+         margin-right: auto;
+      }
+
+      #nos-diferencia .btn-diferencia {
+         background-color: #f4b400;
+         color: #111 !important;
+         font-weight: bold;
+         padding: 1rem 2rem;
+         border: none;
+         border-radius: 30px;
+         cursor: pointer;
+         font-size: 1.1rem;
+         transition: background-color 0.3s ease;
+         text-decoration: none;
+         display: inline-block;
+      }
+
+      #nos-diferencia .btn-diferencia:hover {
+         background-color: #d1a000;
+         color: #fff !important;
+      }
+
+      /* Redes sociales */
+      .social-footer {
+         background: #111;
+         padding: 2rem 0;
+         text-align: center;
+      }
+
+      .social-footer a {
+         color: #fff;
+         font-size: 1.5rem;
+         margin: 0 1rem;
+         text-decoration: none;
+         transition: color 0.3s ease;
+      }
+
+      .social-footer a:hover {
+         color: #f4b400;
+      }
+
+      .footer-info {
+         color: #ccc;
+         font-size: 0.9rem;
+         margin-top: 1rem;
+      }
    </style>
 </head>
 
@@ -67,6 +137,7 @@
             <ul class="main-navigation">
                <li class="current"><a class="smoothscroll" href="#intro">Inicio</a></li>
                <li><a class="smoothscroll" href="#experiencia">Experiencia</a></li>
+               <li><a class="smoothscroll" href="#nos-diferencia">¿Qué nos diferencia?</a></li>
                <li><a class="smoothscroll" href="#menu">Nuestro Menú</a></li>
                <li><a class="smoothscroll" href="#faq">Preguntas</a></li>
                <li class="highlight with-sep"><a href="pedido.html">Haz tu pedido</a></li>					
@@ -80,7 +151,6 @@
    <!-- intro -->
    <section id="intro">
       <div class="shadow-overlay"></div>
-
       <div class="intro-content">
          <div class="row">
             <div class="col-twelve">
@@ -103,6 +173,14 @@
             </p>
          </div>   		
       </div>
+   </section>
+
+   <!-- ¿Qué nos diferencia? -->
+   <section id="nos-diferencia">
+      <h5>¿Qué nos diferencia?</h5>
+      <h1>¿Por qué elegir Mokavad?</h1>
+      <p>En Mokavad nos esforzamos por ofrecerte una experiencia única con productos artesanales y atención personalizada.</p>
+      <a href="https://ivoryquil.github.io/mokavad/quenosdiferencia.html" target="_blank" class="btn-diferencia">Conoce más</a>
    </section>
 
    <!-- menú -->
@@ -184,10 +262,24 @@
                <li><strong>¿Tienen opciones vegetarianas?</strong> Sí, nuestras pizzas y sándwiches tienen opciones veggie deliciosas.</li>
                <li><strong>¿Dónde están ubicados?</strong> Estamos en el centro de la ciudad. Puedes ver la ubicación en Google Maps al final de la página.</li>
                <li><strong>¿Puedo pedir por internet?</strong> ¡Claro! Pronto habilitaremos pedidos desde nuestra web.</li>
+               <li><strong>¿Cómo puedo contactarlos?</strong> Tocando las redes sociales serás redirigido a nuestras plataformas para comunicarte con nosotros.</li>
             </ul>
          </div>
       </div>
    </section>
+
+   <!-- Redes Sociales y Dirección -->
+   <footer class="social-footer">
+      <div>
+         <a href="https://www.facebook.com/mokavad" target="_blank"><i class="fab fa-facebook-f"></i></a>
+         <a href="https://www.instagram.com/mokavad_quilpue/" target="_blank"><i class="fab fa-instagram"></i></a>
+         <a href=" https://wa.me/56977994483" target="_blank"><i class="fab fa-whatsapp"></i></a>
+         <a href="https://www.google.com/maps/place/Mokavad+Deli+Mediterraneo/@-33.0428033,-71.4356977,17z/data=!3m1!4b1!4m6!3m5!1s0x9689d9810180770b:0x15fd1f685b842ea!8m2!3d-33.0428033!4d-71.4331228!16s%2Fg%2F11qgj01pqw?entry=ttu&g_ep=EgoyMDI1MDYwMi4wIKXMDSoASAFQAw%3D%3D" target="_blank"><i class="fas fa-map-marker-alt"></i></a>
+      </div>
+      <div class="footer-info">
+         Mokavad 
+      </div>
+   </footer>
 
    <!-- JavaScript -->
    <script src="js/jquery-1.11.3.min.js"></script>
