@@ -6,8 +6,11 @@
          <h3 style="color: #ffffff;">Categorías</h3>
          <ul id="categoria-menu" style="list-style: none; padding-left: 0; line-height: 2;">
             <li><a href="#" onclick="mostrarCategoria('bebestibles')" style="color: #dddddd; text-decoration: none;">Bebestibles</a></li>
-            <li><a href="#" onclick="mostrarCategoria('comida')" style="color: #dddddd; text-decoration: none;">Comida</a></li>
-            <li><a href="#" onclick="mostrarCategoria('postres')" style="color: #dddddd; text-decoration: none;">Postres</a></li>
+            <li><a href="#" onclick="mostrarCategoria('desayunos_y_onces')" style="color: #dddddd; text-decoration: none;">Desayunos y Onces</a></li>
+            <li><a href="#" onclick="mostrarCategoria('menu_almuerzo')" style="color: #dddddd; text-decoration: none;">Menú Almuerzo</a></li>
+            <li><a href="#" onclick="mostrarCategoria('pasteleria')" style="color: #dddddd; text-decoration: none;">Pastelería</a></li>
+            <li><a href="#" onclick="mostrarCategoria('pizzas')" style="color: #dddddd; text-decoration: none;">Pizzas</a></li>
+            <li><a href="#" onclick="mostrarCategoria('sandwich')" style="color: #dddddd; text-decoration: none;">Sándwich</a></li>
          </ul>
       </div>
 
@@ -15,9 +18,7 @@
       <div class="col-eight">
          <h3 id="titulo-categoria" style="color: #ffffff;">Selecciona una categoría</h3>
          <form id="form-pedido" style="color: #dddddd; padding-top: 1rem;">
-            <div id="contenido-categoria">
-               <!-- Aquí aparecerá el contenido dinámico -->
-            </div>
+            <div id="contenido-categoria"></div>
             <button type="submit" style="margin-top: 1rem; padding: 0.5rem 1rem;">Enviar Pedido</button>
          </form>
          <div id="mensaje" style="margin-top: 1rem; color: #aaffaa;"></div>
@@ -25,64 +26,156 @@
    </div>
 </section>
 
+<style>
+   .cantidad-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.3rem;
+   }
+   .cantidad-control button {
+      background-color: #444;
+      color: white;
+      border: none;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 4px;
+   }
+   .cantidad-control span {
+      min-width: 24px;
+      text-align: center;
+   }
+</style>
+
 <script>
+   // Guardamos la cantidad total de productos pedidos en todas las categorías
+   let productosPedidos = {};
+
+   // Guardamos productos actuales global para la sumatoria en el submit
    let productosActuales = {};
+
+   function cambiarCantidad(id, cambio) {
+      const span = document.getElementById(`cantidad-${id}`);
+      let cantidadActual = productosPedidos[id] || 0;
+
+      cantidadActual += cambio;
+      if (cantidadActual < 0) cantidadActual = 0;
+
+      productosPedidos[id] = cantidadActual;
+      span.textContent = cantidadActual;
+
+      // Si hay un input oculto para el producto actual, actualizarlo también
+      const input = document.getElementById(`input-${id}`);
+      if (input) input.value = cantidadActual;
+   }
+
+   function esProducto(obj) {
+      return obj && typeof obj === 'object' && 'nombre' in obj && 'precio' in obj;
+   }
 
    async function mostrarCategoria(categoria) {
       const titulo = document.getElementById("titulo-categoria");
       const contenido = document.getElementById("contenido-categoria");
       const mensaje = document.getElementById("mensaje");
-      mensaje.textContent = ""; // limpio mensajes
+      mensaje.textContent = "";
 
-      titulo.textContent = categoria.charAt(0).toUpperCase() + categoria.slice(1);
+      const nombreFormateado = categoria.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      titulo.textContent = nombreFormateado;
 
-      if (categoria === "bebestibles") {
-         try {
-            const url = "https://mokavad-8700c-default-rtdb.firebaseio.com/platos/bebestibles.json";
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Error al cargar los datos");
-            const data = await response.json();
+      const url = `https://mokavad-8700c-default-rtdb.firebaseio.com/platos/${categoria}.json`;
 
-            productosActuales = data || {};
+      try {
+         const response = await fetch(url);
+         if (!response.ok) throw new Error("Error al cargar los datos");
+         const data = await response.json();
 
-            let html = "<ul style='list-style:none; padding-left:0;'>";
-            for (const key in data) {
-               if (data.hasOwnProperty(key)) {
-                  const plato = data[key];
+         let html = "";
+
+         if (!data || Object.keys(data).length === 0) {
+            contenido.innerHTML = "<p>No hay productos disponibles en esta categoría.</p>";
+            return;
+         }
+
+         // Acumulamos productos nuevos en productosActuales sin borrar los anteriores
+         for (const key in data) {
+            const valor = data[key];
+
+            if (esProducto(valor)) {
+               const id = `directo__${key}`;
+               productosActuales[id] = valor;
+            } else if (typeof valor === 'object') {
+               for (const subkey in valor) {
+                  const plato = valor[subkey];
+                  const id = `${key}__${subkey}`;
+                  productosActuales[id] = plato;
+               }
+            }
+         }
+
+         // Construir el HTML para mostrar la categoría (igual que antes)
+         for (const key in data) {
+            const valor = data[key];
+
+            if (esProducto(valor)) {
+               const id = `directo__${key}`;
+
+               if (!html.includes(`<h4>`)) {
+                  html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">Productos</h4>`;
+                  html += "<ul style='list-style:none; padding-left:0;'>";
+               }
+
+               const cantidadGuardada = productosPedidos[id] || 0;
+
+               html += `
+                  <li style="margin-bottom: 1rem;">
+                     <strong>${valor.nombre}</strong><br>
+                     <em>${valor.descripcion || ''}</em><br>
+                     Precio: $${valor.precio.toLocaleString()}<br>
+                     <div class="cantidad-control" data-id="${id}">
+                        <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
+                        <span id="cantidad-${id}">${cantidadGuardada}</span>
+                        <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
+                     </div>
+                     <input type="hidden" name="${id}" id="input-${id}" value="${cantidadGuardada}">
+                  </li>
+               `;
+
+            } else if (typeof valor === 'object') {
+               html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4>`;
+               html += "<ul style='list-style:none; padding-left:0;'>";
+
+               for (const subkey in valor) {
+                  const plato = valor[subkey];
+                  const id = `${key}__${subkey}`;
+                  const cantidadGuardada = productosPedidos[id] || 0;
+
                   html += `
                      <li style="margin-bottom: 1rem;">
                         <strong>${plato.nombre}</strong><br>
-                        <em>${plato.descripcion}</em><br>
+                        <em>${plato.descripcion || ''}</em><br>
                         Precio: $${plato.precio.toLocaleString()}<br>
-                        Cantidad: <input type="number" name="${key}" min="0" value="0" style="width: 60px;">
+                        <div class="cantidad-control" data-id="${id}">
+                           <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
+                           <span id="cantidad-${id}">${cantidadGuardada}</span>
+                           <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
+                        </div>
+                        <input type="hidden" name="${id}" id="input-${id}" value="${cantidadGuardada}">
                      </li>
                   `;
                }
+               html += "</ul>";
             }
-            html += "</ul>";
-
-            contenido.innerHTML = html;
-         } catch (error) {
-            contenido.innerHTML = `<p>Error cargando la categoría: ${error.message}</p>`;
          }
-      } else if (categoria === "comida") {
-         contenido.innerHTML = `
-            <p>Pizza Margarita</p>
-            <p>Sándwich Veggie</p>
-            <p>Panini de Pollo</p>
-         `;
-      } else if (categoria === "postres") {
-         contenido.innerHTML = `
-            <p>Brownie</p>
-            <p>Cheesecake</p>
-            <p>Galletas Caseras</p>
-         `;
-      } else {
-         contenido.innerHTML = "<p>Categoría no encontrada.</p>";
+
+         contenido.innerHTML = html;
+
+      } catch (error) {
+         contenido.innerHTML = `<p style="color: #ff5555;">Error cargando la categoría: ${error.message}</p>`;
       }
    }
 
-   // Enviar pedido a Firebase
    document.getElementById("form-pedido").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -90,21 +183,23 @@
       mensaje.style.color = "#aaffaa";
       mensaje.textContent = "Enviando pedido...";
 
-      const formData = new FormData(e.target);
+      // Construimos el pedido usando productosPedidos para recordar cantidades acumuladas
       const pedido = {
          fecha: new Date().toISOString(),
          productos: {},
       };
 
-      for (const [key, value] of formData.entries()) {
-         const cantidad = parseInt(value);
-         if (cantidad > 0 && productosActuales[key]) {
-            pedido.productos[key] = {
-               nombre: productosActuales[key].nombre,
-               cantidad: cantidad,
-               precio_unitario: productosActuales[key].precio,
-               subtotal: productosActuales[key].precio * cantidad,
-            };
+      for (const id in productosPedidos) {
+         const cantidad = productosPedidos[id];
+         if (cantidad > 0) {
+            if (productosActuales[id]) {
+               pedido.productos[id] = {
+                  nombre: productosActuales[id].nombre,
+                  cantidad: cantidad,
+                  precio_unitario: productosActuales[id].precio,
+                  subtotal: productosActuales[id].precio * cantidad,
+               };
+            }
          }
       }
 
@@ -114,12 +209,10 @@
          return;
       }
 
-      // Calcular total
       pedido.total = Object.values(pedido.productos).reduce((acc, item) => acc + item.subtotal, 0);
 
       try {
          const urlPedidos = "https://mokavad-8700c-default-rtdb.firebaseio.com/pedidos.json";
-
          const response = await fetch(urlPedidos, {
             method: "POST",
             headers: {
@@ -130,8 +223,13 @@
 
          if (!response.ok) throw new Error("Error enviando pedido");
 
-         mensaje.textContent = "Pedido enviado con éxito!";
-         e.target.reset(); // limpiar formulario
+         mensaje.textContent = "¡Pedido enviado con éxito!";
+
+         // Limpiamos el pedido y visualmente las cantidades en pantalla
+         productosPedidos = {};
+         document.querySelectorAll('[id^="cantidad-"]').forEach(el => el.textContent = "0");
+         document.querySelectorAll('[id^="input-"]').forEach(el => el.value = "0");
+
       } catch (error) {
          mensaje.style.color = "#ff5555";
          mensaje.textContent = "Error al enviar el pedido: " + error.message;
