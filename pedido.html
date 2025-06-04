@@ -195,9 +195,9 @@
             }
          }
 
-         // Renderizar productos directos si existen, solo una vez el título "Productos"
+         // Renderizar productos directos si existen, sin título "Productos"
          if (Object.keys(productosDirectos).length > 0) {
-            html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">Productos</h4><ul style='list-style:none; padding-left:0;'>`;
+            html += `<ul style='list-style:none; padding-left:0;'>`;
             for (const id in productosDirectos) {
                const producto = productosDirectos[id];
                const cantidad = productosPedidos[id] || 0;
@@ -275,54 +275,24 @@
       document.getElementById("confirmar-btn").style.display = "inline-block";
    }
 
-   document.getElementById("form-pedido").addEventListener("submit", async (e) => {
+   document.getElementById("form-pedido").addEventListener("submit", async function(e) {
       e.preventDefault();
-      const mensaje = document.getElementById("mensaje");
-      mensaje.textContent = "Enviando pedido...";
-      mensaje.style.color = "#aaffaa";
-
-      const pedido = {
-         fecha: new Date().toISOString(),
-         productos: {},
-      };
-
+      const pedidoFinal = {};
       for (const id in productosPedidos) {
-         const cantidad = productosPedidos[id];
-         const producto = productosActuales[id];
-         if (cantidad > 0 && producto) {
-            pedido.productos[id] = {
-               nombre: producto.nombre,
-               cantidad: cantidad,
-               precio_unitario: producto.precio,
-               subtotal: cantidad * producto.precio,
-            };
-         }
+         if (productosPedidos[id] > 0) pedidoFinal[id] = productosPedidos[id];
       }
-
-      pedido.total = Object.values(pedido.productos).reduce((acc, p) => acc + p.subtotal, 0);
-
-      try {
-         const response = await fetch("https://mokavad-8700c-default-rtdb.firebaseio.com/pedidos.json", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(pedido),
-         });
-
-         if (!response.ok) throw new Error("Error al enviar pedido");
-
-         mensaje.innerHTML = `<strong>Pedido enviado con éxito</strong><br>Total: $${pedido.total.toLocaleString()}`;
-
-         // Reiniciar pedido
-         productosPedidos = {};
-         document.getElementById("contenido-categoria").innerHTML = "";
-         document.getElementById("titulo-categoria").textContent = "Selecciona una categoría";
-         document.getElementById("resumen-pedido").style.display = "none";
-         document.getElementById("confirmar-btn").style.display = "none";
-
-      } catch (error) {
-         mensaje.style.color = "#ff5555";
-         mensaje.textContent = "Error al enviar pedido: " + error.message;
+      if (Object.keys(pedidoFinal).length === 0) {
+         alert("Debes seleccionar al menos un producto para confirmar el pedido.");
+         return;
       }
+      // Aquí podrías enviar el pedidoFinal a un servidor, Firebase, etc.
+      alert("Pedido confirmado. Gracias!");
+      // Reiniciar pedido
+      productosPedidos = {};
+      mostrarCategoria(document.getElementById("titulo-categoria").textContent.toLowerCase().replace(/\s+/g, '_'));
+      document.getElementById("resumen-pedido").style.display = "none";
+      document.getElementById("confirmar-btn").style.display = "none";
+      document.getElementById("mensaje").textContent = "Pedido confirmado.";
    });
 </script>
 
