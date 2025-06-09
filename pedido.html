@@ -1,98 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Menú con Categorías y Pedido</title>
-<style>
-  body {
-    background-color: #121212;
-    color: #ddd;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    max-width: 960px;
-    margin: auto;
-    padding: 0 1rem;
-  }
-  .col-four {
-    flex: 0 0 33.3333%;
-    padding: 1rem;
-  }
-  .col-eight {
-    flex: 0 0 66.6666%;
-    padding: 1rem;
-  }
-  h3, h4 {
-    margin-top: 0;
-  }
-  ul {
-    list-style: none;
-    padding-left: 0;
-  }
-  ul li {
-    margin-bottom: 0.8rem;
-  }
-  a {
-    color: #ddd;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  a:hover {
-    text-decoration: underline;
-  }
-  button {
-    background-color: #444;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-  button:hover {
-    background-color: #555;
-  }
-  .cantidad-control {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.3rem;
-  }
-  .cantidad-control button {
-    background-color: #444;
-    color: white;
-    border: none;
-    width: 30px;
-    height: 30px;
-    font-size: 18px;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-  .cantidad-control span {
-    min-width: 24px;
-    text-align: center;
-  }
-  #mensaje {
-    margin-top: 1rem;
-    color: #aaffaa;
-  }
-  #resumen-pedido ul {
-    margin-top: 0.5rem;
-  }
-  @media (max-width: 700px) {
-    .col-four, .col-eight {
-      flex: 0 0 100%;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menú con Categorías y Pedido</title>
+  <link rel="stylesheet" href="css/estilo.css" />
+  <style>
+    body {
+      background-color: #121212;
+      color: #ddd;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
     }
-  }
-</style>
-
-<!-- Aquí se agrega el CSS externo sin eliminar nada -->
-<link rel="stylesheet" href="css/estilo.css" />
-
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 960px;
+      margin: auto;
+      padding: 0 1rem;
+    }
+    .col-four {
+      flex: 0 0 33.3333%;
+      padding: 1rem;
+    }
+    .col-eight {
+      flex: 0 0 66.6666%;
+      padding: 1rem;
+    }
+    h3, h4 {
+      margin-top: 0;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul li {
+      margin-bottom: 0.8rem;
+    }
+    a {
+      color: #ddd;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    button {
+      background-color: #444;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #555;
+    }
+    .cantidad-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.3rem;
+    }
+    .cantidad-control button {
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+    }
+    .cantidad-control span {
+      min-width: 24px;
+      text-align: center;
+    }
+    #mensaje {
+      margin-top: 1rem;
+      color: #aaffaa;
+    }
+    #resumen-pedido ul {
+      margin-top: 0.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: #ffcc00;
+    }
+    select {
+      padding: 0.3rem 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background-color: #222;
+      color: #ddd;
+      cursor: pointer;
+    }
+    @media (max-width: 700px) {
+      .col-four, .col-eight {
+        flex: 0 0 100%;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -100,71 +108,57 @@
   <div class="row">
     <div class="col-four">
       <h3>Categorías</h3>
-      
       <div class="radio-container">
-        <input type="radio" id="op1" name="menu" checked onchange="mostrarCategoria('bebestibles')">
-        <label for="op1">Bebestibles</label>
-
-        <input type="radio" id="op2" name="menu" onchange="mostrarCategoria('desayunos_y_onces')">
-        <label for="op2">Desayunos y Onces</label>
-
-        <input type="radio" id="op3" name="menu" onchange="mostrarCategoria('menu_almuerzo')">
-        <label for="op3">Menú Almuerzo</label>
-
-        <input type="radio" id="op4" name="menu" onchange="mostrarCategoria('pasteleria')">
-        <label for="op4">Pastelería</label>
-
-        <input type="radio" id="op5" name="menu" onchange="mostrarCategoria('pizzas')">
-        <label for="op5">Pizzas</label>
-
-        <input type="radio" id="op6" name="menu" onchange="mostrarCategoria('sandwich')">
-        <label for="op6">Sándwich</label>
-
-        <div class="glider-container">
-          <div class="glider"></div>
-        </div>
+        <input type="radio" id="op1" name="menu" checked onchange="mostrarCategoria('bebestibles')"><label for="op1">Bebestibles</label><br>
+        <input type="radio" id="op2" name="menu" onchange="mostrarCategoria('desayunos_y_onces')"><label for="op2">Desayunos y Onces</label><br>
+        <input type="radio" id="op3" name="menu" onchange="mostrarCategoria('menu_almuerzo')"><label for="op3">Menú Almuerzo</label><br>
+        <input type="radio" id="op4" name="menu" onchange="mostrarCategoria('pasteleria')"><label for="op4">Pastelería</label><br>
+        <input type="radio" id="op5" name="menu" onchange="mostrarCategoria('pizzas')"><label for="op5">Pizzas</label><br>
+        <input type="radio" id="op6" name="menu" onchange="mostrarCategoria('sandwich')"><label for="op6">Sándwich</label>
       </div>
-      
     </div>
 
     <div class="col-eight">
       <h3 id="titulo-categoria">Selecciona una categoría</h3>
+
+      <!-- Select para elegir mesa -->
+      <label for="select-mesa">Selecciona tu mesa</label>
+      <select id="select-mesa" required>
+        <option value="" disabled selected>-- Elige una mesa --</option>
+        <option value="1">Mesa 1</option>
+        <option value="2">Mesa 2</option>
+        <option value="3">Mesa 3</option>
+        <option value="4">Mesa 4</option>
+        <option value="5">Mesa 5</option>
+        <option value="6">Mesa 6</option>
+        <option value="7">Mesa 7</option>
+        <option value="8">Mesa 8</option>
+        <option value="9">Mesa 9</option>
+        <option value="10">Mesa 10</option>
+      </select>
+
       <form id="form-pedido">
         <div id="contenido-categoria"></div>
         <button type="button" onclick="mostrarResumen()">Ver Resumen</button>
         <div id="resumen-pedido"></div>
-        <button type="submit" id="confirmar-btn">Confirmar Pedido</button>
+        <button type="submit" id="confirmar-btn" style="display:none;">Confirmar Pedido</button>
       </form>
       <div id="mensaje"></div>
     </div>
   </div>
 </section>
 
-
 <script>
   let productosPedidos = {};
   let productosActuales = {};
 
-  // Carga pedidos guardados de localStorage al iniciar (si quieres persistencia entre recargas)
-  if (localStorage.getItem('productosPedidos')) {
-    productosPedidos = JSON.parse(localStorage.getItem('productosPedidos'));
-  }
-
-  function guardarPedidosLocalStorage() {
-    localStorage.setItem('productosPedidos', JSON.stringify(productosPedidos));
-  }
-
   function cambiarCantidad(id, cambio) {
     const cantidadActual = (productosPedidos[id] || 0) + cambio;
     productosPedidos[id] = Math.max(cantidadActual, 0);
-
-    // Actualizar display
     const span = document.getElementById(`cantidad-${id}`);
     if (span) span.textContent = productosPedidos[id];
     const input = document.getElementById(`input-${id}`);
     if (input) input.value = productosPedidos[id];
-
-    guardarPedidosLocalStorage();
   }
 
   function esProducto(obj) {
@@ -190,14 +184,28 @@
       if (!response.ok) throw new Error("Error al cargar los datos");
       const data = await response.json();
 
-      // Agregar nuevos productos a productosActuales sin borrar los anteriores
-      // Esto asegura que las referencias de productosPedidos no se pierdan
+      // Limpiar productos actuales relacionados con la categoría
+      for (const key in productosActuales) {
+        if (key.startsWith(categoria + "__") || !key.includes("__")) {
+          delete productosActuales[key];
+        }
+      }
+
+      let html = "";
+      let productosSinSubcategoria = {};
+      let subcategorias = {};
+
+      // Separar productos sin subcategoría y subcategorías
       for (const key in data) {
         const valor = data[key];
         if (esProducto(valor)) {
-          const id = `directo__${key}`;
+          // Producto sin subcategoría: id = nombre del producto (key)
+          const id = key;
+          productosSinSubcategoria[id] = valor;
           productosActuales[id] = valor;
         } else {
+          // Subcategorías
+          subcategorias[key] = valor;
           for (const subkey in valor) {
             const id = `${key}__${subkey}`;
             productosActuales[id] = valor[subkey];
@@ -205,31 +213,17 @@
         }
       }
 
-      let html = "";
-      let productosDirectos = {};
-      let subcategorias = {};
-
-      for (const key in data) {
-        const valor = data[key];
-        if (esProducto(valor)) {
-          const id = `directo__${key}`;
-          productosDirectos[id] = valor;
-        } else {
-          subcategorias[key] = valor;
-        }
-      }
-
-      // Productos directos
-      if (Object.keys(productosDirectos).length > 0) {
+      // Mostrar productos sin subcategoría
+      if (Object.keys(productosSinSubcategoria).length > 0) {
         html += `<ul>`;
-        for (const id in productosDirectos) {
-          const producto = productosDirectos[id];
+        for (const id in productosSinSubcategoria) {
+          const p = productosSinSubcategoria[id];
           const cantidad = productosPedidos[id] || 0;
           html += `
-            <li style="margin-bottom: 1rem;">
-              <strong>${producto.nombre}</strong><br>
-              <em>${producto.descripcion || ''}</em><br>
-              Precio: $${producto.precio.toLocaleString()}<br>
+            <li>
+              <strong>${p.nombre}</strong><br>
+              <em>${p.descripcion || ''}</em><br>
+              Precio: $${p.precio.toLocaleString()}<br>
               <div class="cantidad-control">
                 <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
                 <span id="cantidad-${id}">${cantidad}</span>
@@ -241,19 +235,19 @@
         html += `</ul>`;
       }
 
-      // Subcategorías
+      // Mostrar subcategorías con productos
       for (const subcat in subcategorias) {
         const productosSubcat = subcategorias[subcat];
-        html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">${subcat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4><ul>`;
+        html += `<h4 style="color: #ffcc00;">${subcat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4><ul>`;
         for (const key in productosSubcat) {
-          const plato = productosSubcat[key];
+          const p = productosSubcat[key];
           const id = `${subcat}__${key}`;
           const cantidad = productosPedidos[id] || 0;
           html += `
-            <li style="margin-bottom: 1rem;">
-              <strong>${plato.nombre}</strong><br>
-              <em>${plato.descripcion || ''}</em><br>
-              Precio: $${plato.precio.toLocaleString()}<br>
+            <li>
+              <strong>${p.nombre}</strong><br>
+              <em>${p.descripcion || ''}</em><br>
+              Precio: $${p.precio.toLocaleString()}<br>
               <div class="cantidad-control">
                 <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
                 <span id="cantidad-${id}">${cantidad}</span>
@@ -266,7 +260,6 @@
       }
 
       contenido.innerHTML = html;
-
     } catch (error) {
       contenido.innerHTML = `<p style="color: #ff5555;">Error cargando la categoría: ${error.message}</p>`;
     }
@@ -276,7 +269,7 @@
     const resumenDiv = document.getElementById("resumen-pedido");
     resumenDiv.innerHTML = "";
     let total = 0;
-    let contenido = "<strong>Resumen del pedido:</strong><ul style='margin-top: 0.5rem;'>";
+    let contenido = "<strong>Resumen del pedido:</strong><ul>";
 
     for (const id in productosPedidos) {
       const cantidad = productosPedidos[id];
@@ -302,6 +295,16 @@
 
   document.getElementById("form-pedido").addEventListener("submit", async function(e) {
     e.preventDefault();
+
+    // Validar mesa seleccionada
+    const selectMesa = document.getElementById("select-mesa");
+    const mesaSeleccionada = selectMesa.value;
+    if (!mesaSeleccionada) {
+      alert("Por favor, selecciona tu mesa antes de confirmar el pedido.");
+      selectMesa.focus();
+      return;
+    }
+
     const pedidoFinal = {};
     let total = 0;
 
@@ -310,7 +313,7 @@
       if (cantidad > 0) {
         pedidoFinal[id] = {
           nombre: productosActuales[id].nombre,
-          cantidad: cantidad,
+          cantidad,
           precio: productosActuales[id].precio,
           subtotal: cantidad * productosActuales[id].precio
         };
@@ -326,37 +329,60 @@
     const pedidoData = {
       pedido: pedidoFinal,
       total: total,
+      mesa: mesaSeleccionada,
       timestamp: new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" })
     };
 
     try {
-      const res = await fetch("https://mokavad-8700c-default-rtdb.firebaseio.com/pedidos.json", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(pedidoData)
+      const fechaHoy = new Date().toLocaleDateString("es-CL"); // Ej: "09-06-2025"
+      const urlFecha = `https://mokavad-8700c-default-rtdb.firebaseio.com/pedidos/${fechaHoy}.json`;
+
+      // Paso 1: obtener pedidos existentes para hoy
+      const resExistente = await fetch(urlFecha);
+      const dataExistente = await resExistente.json();
+
+      // Calcular nuevo ID correlativo sin saltos
+      let nuevoID = 1;
+      if (dataExistente && Object.keys(dataExistente).length > 0) {
+        const idsNumericos = Object.keys(dataExistente)
+          .map(id => parseInt(id))
+          .filter(num => !isNaN(num));
+        if (idsNumericos.length > 0) {
+          nuevoID = Math.max(...idsNumericos) + 1;
+        }
+      }
+
+      // Paso 2: agregar número de pedido al JSON
+      pedidoData.numero_pedido = nuevoID;
+
+      // Paso 3: guardar el nuevo pedido con ID correlativo usando PATCH
+      const res = await fetch(urlFecha, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [nuevoID]: pedidoData })
       });
 
       if (!res.ok) throw new Error("Error al guardar el pedido");
 
-      // Limpiar pedido y UI tras confirmar
+      // Limpiar datos e interfaz
       productosPedidos = {};
-      guardarPedidosLocalStorage();
+      selectMesa.value = ""; // Limpiar selección de mesa
+      const categoriaSeleccionada = document.querySelector('input[name="menu"]:checked');
+      const categoriaNombre = categoriaSeleccionada
+        ? categoriaSeleccionada.nextElementSibling.textContent.toLowerCase().replace(/\s+/g, '_')
+        : "bebestibles";
 
-      mostrarCategoria(document.getElementById("titulo-categoria").textContent.toLowerCase().replace(/\s+/g, '_'));
+      mostrarCategoria(categoriaNombre);
       document.getElementById("resumen-pedido").style.display = "none";
       document.getElementById("confirmar-btn").style.display = "none";
-      document.getElementById("mensaje").textContent = "Pedido confirmado y guardado en Firebase.";
+      document.getElementById("mensaje").textContent = `Pedido #${nuevoID} guardado correctamente el ${fechaHoy} en la mesa ${mesaSeleccionada}.`;
     } catch (error) {
       alert("Error guardando el pedido: " + error.message);
     }
   });
 
-  // Opcional: al cargar la página, puedes mostrar una categoría inicial y refrescar cantidades
-  window.addEventListener("DOMContentLoaded", () => {
-    const categoriaInicial = "bebestibles"; // Cambia según tu categoría por defecto
-    mostrarCategoria(categoriaInicial);
-  });
+  // Cargar categoría por defecto al iniciar
+  window.onload = () => mostrarCategoria('bebestibles');
 </script>
-
+</body>
+</html>
