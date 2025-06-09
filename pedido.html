@@ -27,7 +27,7 @@
     flex: 0 0 66.6666%;
     padding: 1rem;
   }
-  h3 {
+  h3, h4 {
     margin-top: 0;
   }
   ul {
@@ -38,7 +38,7 @@
     margin-bottom: 0.8rem;
   }
   a {
-    color: #dddddd;
+    color: #ddd;
     text-decoration: none;
     cursor: pointer;
   }
@@ -78,223 +78,285 @@
   }
   #mensaje {
     margin-top: 1rem;
+    color: #aaffaa;
   }
   #resumen-pedido ul {
     margin-top: 0.5rem;
   }
-  /* Responsive */
   @media (max-width: 700px) {
     .col-four, .col-eight {
       flex: 0 0 100%;
     }
   }
 </style>
+
+<!-- Aquí se agrega el CSS externo sin eliminar nada -->
+<link rel="stylesheet" href="css/estilo.css" />
+
 </head>
 <body>
 
-<!-- Sección de Categorías -->
-<section id="categorias" style="padding: 4rem 0; background-color: #1a1a1a;">
-   <div class="row">
-      <!-- Menú de Categorías -->
-      <div class="col-four">
-         <h3 style="color: #ffffff;">Categorías</h3>
-         <ul id="categoria-menu" style="list-style: none; padding-left: 0; line-height: 2;">
-            <li><a href="#" onclick="mostrarCategoria('bebestibles')">Bebestibles</a></li>
-            <li><a href="#" onclick="mostrarCategoria('desayunos_y_onces')">Desayunos y Onces</a></li>
-            <li><a href="#" onclick="mostrarCategoria('menu_almuerzo')">Menú Almuerzo</a></li>
-            <li><a href="#" onclick="mostrarCategoria('pasteleria')">Pastelería</a></li>
-            <li><a href="#" onclick="mostrarCategoria('pizzas')">Pizzas</a></li>
-            <li><a href="#" onclick="mostrarCategoria('sandwich')">Sándwich</a></li>
-         </ul>
-      </div>
+<section id="categorias">
+  <div class="row">
+    <div class="col-four">
+      <h3>Categorías</h3>
+      
+      <div class="radio-container">
+        <input type="radio" id="op1" name="menu" checked onchange="mostrarCategoria('bebestibles')">
+        <label for="op1">Bebestibles</label>
 
-      <!-- Contenido de la Categoría -->
-      <div class="col-eight">
-         <h3 id="titulo-categoria" style="color: #ffffff;">Selecciona una categoría</h3>
-         <form id="form-pedido" style="color: #dddddd; padding-top: 1rem;">
-            <div id="contenido-categoria"></div>
-            <button type="button" onclick="mostrarResumen()" style="margin-top: 1rem; padding: 0.5rem 1rem;">Ver Resumen</button>
-            <div id="resumen-pedido" style="margin-top: 1rem; display: none;"></div>
-            <button type="submit" id="confirmar-btn" style="margin-top: 1rem; display: none; padding: 0.5rem 1rem;">Confirmar Pedido</button>
-         </form>
-         <div id="mensaje" style="margin-top: 1rem; color: #aaffaa;"></div>
+        <input type="radio" id="op2" name="menu" onchange="mostrarCategoria('desayunos_y_onces')">
+        <label for="op2">Desayunos y Onces</label>
+
+        <input type="radio" id="op3" name="menu" onchange="mostrarCategoria('menu_almuerzo')">
+        <label for="op3">Menú Almuerzo</label>
+
+        <input type="radio" id="op4" name="menu" onchange="mostrarCategoria('pasteleria')">
+        <label for="op4">Pastelería</label>
+
+        <input type="radio" id="op5" name="menu" onchange="mostrarCategoria('pizzas')">
+        <label for="op5">Pizzas</label>
+
+        <input type="radio" id="op6" name="menu" onchange="mostrarCategoria('sandwich')">
+        <label for="op6">Sándwich</label>
+
+        <div class="glider-container">
+          <div class="glider"></div>
+        </div>
       </div>
-   </div>
+      
+    </div>
+
+    <div class="col-eight">
+      <h3 id="titulo-categoria">Selecciona una categoría</h3>
+      <form id="form-pedido">
+        <div id="contenido-categoria"></div>
+        <button type="button" onclick="mostrarResumen()">Ver Resumen</button>
+        <div id="resumen-pedido"></div>
+        <button type="submit" id="confirmar-btn">Confirmar Pedido</button>
+      </form>
+      <div id="mensaje"></div>
+    </div>
+  </div>
 </section>
 
+
 <script>
-   let productosPedidos = {};
-   let productosActuales = {};
+  let productosPedidos = {};
+  let productosActuales = {};
 
-   function cambiarCantidad(id, cambio) {
-      const cantidadActual = (productosPedidos[id] || 0) + cambio;
-      productosPedidos[id] = Math.max(cantidadActual, 0);
-      const span = document.getElementById(`cantidad-${id}`);
-      if (span) span.textContent = productosPedidos[id];
-      const input = document.getElementById(`input-${id}`);
-      if (input) input.value = productosPedidos[id];
-   }
+  // Carga pedidos guardados de localStorage al iniciar (si quieres persistencia entre recargas)
+  if (localStorage.getItem('productosPedidos')) {
+    productosPedidos = JSON.parse(localStorage.getItem('productosPedidos'));
+  }
 
-   function esProducto(obj) {
-      return obj && typeof obj === 'object' && 'nombre' in obj && 'precio' in obj;
-   }
+  function guardarPedidosLocalStorage() {
+    localStorage.setItem('productosPedidos', JSON.stringify(productosPedidos));
+  }
 
-   async function mostrarCategoria(categoria) {
-      const titulo = document.getElementById("titulo-categoria");
-      const contenido = document.getElementById("contenido-categoria");
-      const mensaje = document.getElementById("mensaje");
-      const resumenDiv = document.getElementById("resumen-pedido");
-      resumenDiv.style.display = "none";
+  function cambiarCantidad(id, cambio) {
+    const cantidadActual = (productosPedidos[id] || 0) + cambio;
+    productosPedidos[id] = Math.max(cantidadActual, 0);
+
+    // Actualizar display
+    const span = document.getElementById(`cantidad-${id}`);
+    if (span) span.textContent = productosPedidos[id];
+    const input = document.getElementById(`input-${id}`);
+    if (input) input.value = productosPedidos[id];
+
+    guardarPedidosLocalStorage();
+  }
+
+  function esProducto(obj) {
+    return obj && typeof obj === 'object' && 'nombre' in obj && 'precio' in obj;
+  }
+
+  async function mostrarCategoria(categoria) {
+    const titulo = document.getElementById("titulo-categoria");
+    const contenido = document.getElementById("contenido-categoria");
+    const mensaje = document.getElementById("mensaje");
+    const resumenDiv = document.getElementById("resumen-pedido");
+    resumenDiv.style.display = "none";
+    document.getElementById("confirmar-btn").style.display = "none";
+    mensaje.textContent = "";
+
+    const nombreFormateado = categoria.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    titulo.textContent = nombreFormateado;
+
+    const url = `https://mokavad-8700c-default-rtdb.firebaseio.com/platos/${categoria}.json`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Error al cargar los datos");
+      const data = await response.json();
+
+      // Agregar nuevos productos a productosActuales sin borrar los anteriores
+      // Esto asegura que las referencias de productosPedidos no se pierdan
+      for (const key in data) {
+        const valor = data[key];
+        if (esProducto(valor)) {
+          const id = `directo__${key}`;
+          productosActuales[id] = valor;
+        } else {
+          for (const subkey in valor) {
+            const id = `${key}__${subkey}`;
+            productosActuales[id] = valor[subkey];
+          }
+        }
+      }
+
+      let html = "";
+      let productosDirectos = {};
+      let subcategorias = {};
+
+      for (const key in data) {
+        const valor = data[key];
+        if (esProducto(valor)) {
+          const id = `directo__${key}`;
+          productosDirectos[id] = valor;
+        } else {
+          subcategorias[key] = valor;
+        }
+      }
+
+      // Productos directos
+      if (Object.keys(productosDirectos).length > 0) {
+        html += `<ul>`;
+        for (const id in productosDirectos) {
+          const producto = productosDirectos[id];
+          const cantidad = productosPedidos[id] || 0;
+          html += `
+            <li style="margin-bottom: 1rem;">
+              <strong>${producto.nombre}</strong><br>
+              <em>${producto.descripcion || ''}</em><br>
+              Precio: $${producto.precio.toLocaleString()}<br>
+              <div class="cantidad-control">
+                <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
+                <span id="cantidad-${id}">${cantidad}</span>
+                <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
+              </div>
+              <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
+            </li>`;
+        }
+        html += `</ul>`;
+      }
+
+      // Subcategorías
+      for (const subcat in subcategorias) {
+        const productosSubcat = subcategorias[subcat];
+        html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">${subcat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4><ul>`;
+        for (const key in productosSubcat) {
+          const plato = productosSubcat[key];
+          const id = `${subcat}__${key}`;
+          const cantidad = productosPedidos[id] || 0;
+          html += `
+            <li style="margin-bottom: 1rem;">
+              <strong>${plato.nombre}</strong><br>
+              <em>${plato.descripcion || ''}</em><br>
+              Precio: $${plato.precio.toLocaleString()}<br>
+              <div class="cantidad-control">
+                <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
+                <span id="cantidad-${id}">${cantidad}</span>
+                <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
+              </div>
+              <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
+            </li>`;
+        }
+        html += `</ul>`;
+      }
+
+      contenido.innerHTML = html;
+
+    } catch (error) {
+      contenido.innerHTML = `<p style="color: #ff5555;">Error cargando la categoría: ${error.message}</p>`;
+    }
+  }
+
+  function mostrarResumen() {
+    const resumenDiv = document.getElementById("resumen-pedido");
+    resumenDiv.innerHTML = "";
+    let total = 0;
+    let contenido = "<strong>Resumen del pedido:</strong><ul style='margin-top: 0.5rem;'>";
+
+    for (const id in productosPedidos) {
+      const cantidad = productosPedidos[id];
+      const producto = productosActuales[id];
+      if (cantidad > 0 && producto) {
+        const subtotal = cantidad * producto.precio;
+        total += subtotal;
+        contenido += `<li>${producto.nombre} - $${producto.precio.toLocaleString()} x ${cantidad} = $${subtotal.toLocaleString()}</li>`;
+      }
+    }
+
+    if (total === 0) {
+      resumenDiv.innerHTML = "<p style='color: #ff5555;'>No has seleccionado productos aún.</p>";
       document.getElementById("confirmar-btn").style.display = "none";
+      return;
+    }
 
-      mensaje.textContent = "";
-      const nombreFormateado = categoria.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      titulo.textContent = nombreFormateado;
+    contenido += `</ul><strong>Total: $${total.toLocaleString()}</strong>`;
+    resumenDiv.innerHTML = contenido;
+    resumenDiv.style.display = "block";
+    document.getElementById("confirmar-btn").style.display = "inline-block";
+  }
 
-      const url = `https://mokavad-8700c-default-rtdb.firebaseio.com/platos/${categoria}.json`;
+  document.getElementById("form-pedido").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const pedidoFinal = {};
+    let total = 0;
 
-      try {
-         const response = await fetch(url);
-         if (!response.ok) throw new Error("Error al cargar los datos");
-         const data = await response.json();
-         let html = "";
-
-         if (!data || Object.keys(data).length === 0) {
-            contenido.innerHTML = "<p>No hay productos disponibles en esta categoría.</p>";
-            return;
-         }
-
-         productosActuales = { ...productosActuales }; // mantener existentes
-
-         // Limpiar productosActuales de esta categoria (opcional)
-         for (const key in productosActuales) {
-            if (key.startsWith("directo__") || key.startsWith(categoria + "__")) {
-               delete productosActuales[key];
-            }
-         }
-
-         // Detectar si hay productos directos (sin subcategorías)
-         let productosDirectos = {};
-         let subcategorias = {};
-
-         for (const key in data) {
-            const valor = data[key];
-            if (esProducto(valor)) {
-               // Producto directo
-               const id = `directo__${key}`;
-               productosDirectos[id] = valor;
-               productosActuales[id] = valor;
-            } else {
-               // Subcategoría con productos
-               subcategorias[key] = valor;
-               // Añadir productos subcategoría a productosActuales
-               for (const subkey in valor) {
-                  const id = `${key}__${subkey}`;
-                  productosActuales[id] = valor[subkey];
-               }
-            }
-         }
-
-         // Renderizar productos directos si existen, sin título "Productos"
-         if (Object.keys(productosDirectos).length > 0) {
-            html += `<ul style='list-style:none; padding-left:0;'>`;
-            for (const id in productosDirectos) {
-               const producto = productosDirectos[id];
-               const cantidad = productosPedidos[id] || 0;
-               html += `
-                  <li style="margin-bottom: 1rem;">
-                     <strong>${producto.nombre}</strong><br>
-                     <em>${producto.descripcion || ''}</em><br>
-                     Precio: $${producto.precio.toLocaleString()}<br>
-                     <div class="cantidad-control">
-                        <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
-                        <span id="cantidad-${id}">${cantidad}</span>
-                        <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
-                     </div>
-                     <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
-                  </li>`;
-            }
-            html += "</ul>";
-         }
-
-         // Renderizar subcategorías
-         for (const subcat in subcategorias) {
-            const productosSubcat = subcategorias[subcat];
-            html += `<h4 style="margin-top: 1.5rem; color: #ffcc00;">${subcat.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</h4><ul style='list-style:none; padding-left:0;'>`;
-            for (const key in productosSubcat) {
-               const plato = productosSubcat[key];
-               const id = `${subcat}__${key}`;
-               const cantidad = productosPedidos[id] || 0;
-               html += `
-                  <li style="margin-bottom: 1rem;">
-                     <strong>${plato.nombre}</strong><br>
-                     <em>${plato.descripcion || ''}</em><br>
-                     Precio: $${plato.precio.toLocaleString()}<br>
-                     <div class="cantidad-control">
-                        <button type="button" onclick="cambiarCantidad('${id}', -1)">-</button>
-                        <span id="cantidad-${id}">${cantidad}</span>
-                        <button type="button" onclick="cambiarCantidad('${id}', 1)">+</button>
-                     </div>
-                     <input type="hidden" name="${id}" id="input-${id}" value="${cantidad}">
-                  </li>`;
-            }
-            html += "</ul>";
-         }
-
-         contenido.innerHTML = html;
-
-      } catch (error) {
-         contenido.innerHTML = `<p style="color: #ff5555;">Error cargando la categoría: ${error.message}</p>`;
+    for (const id in productosPedidos) {
+      const cantidad = productosPedidos[id];
+      if (cantidad > 0) {
+        pedidoFinal[id] = {
+          nombre: productosActuales[id].nombre,
+          cantidad: cantidad,
+          precio: productosActuales[id].precio,
+          subtotal: cantidad * productosActuales[id].precio
+        };
+        total += cantidad * productosActuales[id].precio;
       }
-   }
+    }
 
-   function mostrarResumen() {
-      const resumenDiv = document.getElementById("resumen-pedido");
-      resumenDiv.innerHTML = "";
-      let total = 0;
-      let contenido = "<strong>Resumen del pedido:</strong><ul style='margin-top: 0.5rem;'>";
+    if (Object.keys(pedidoFinal).length === 0) {
+      alert("Debes seleccionar al menos un producto.");
+      return;
+    }
 
-      for (const id in productosPedidos) {
-         const cantidad = productosPedidos[id];
-         const producto = productosActuales[id];
-         if (cantidad > 0 && producto) {
-            const subtotal = cantidad * producto.precio;
-            total += subtotal;
-            contenido += `<li>${producto.nombre} - $${producto.precio.toLocaleString()} x ${cantidad} = $${subtotal.toLocaleString()}</li>`;
-         }
-      }
+    const pedidoData = {
+      pedido: pedidoFinal,
+      total: total,
+      timestamp: new Date().toLocaleString("es-CL", { timeZone: "America/Santiago" })
+    };
 
-      if (total === 0) {
-         resumenDiv.innerHTML = "<p style='color: #ff5555;'>No has seleccionado productos aún.</p>";
-         return;
-      }
+    try {
+      const res = await fetch("https://mokavad-8700c-default-rtdb.firebaseio.com/pedidos.json", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(pedidoData)
+      });
 
-      contenido += `</ul><strong>Total: $${total.toLocaleString()}</strong>`;
-      resumenDiv.innerHTML = contenido;
-      resumenDiv.style.display = "block";
-      document.getElementById("confirmar-btn").style.display = "inline-block";
-   }
+      if (!res.ok) throw new Error("Error al guardar el pedido");
 
-   document.getElementById("form-pedido").addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const pedidoFinal = {};
-      for (const id in productosPedidos) {
-         if (productosPedidos[id] > 0) pedidoFinal[id] = productosPedidos[id];
-      }
-      if (Object.keys(pedidoFinal).length === 0) {
-         alert("Debes seleccionar al menos un producto para confirmar el pedido.");
-         return;
-      }
-      // Aquí podrías enviar el pedidoFinal a un servidor, Firebase, etc.
-      alert("Pedido confirmado. Gracias!");
-      // Reiniciar pedido
+      // Limpiar pedido y UI tras confirmar
       productosPedidos = {};
+      guardarPedidosLocalStorage();
+
       mostrarCategoria(document.getElementById("titulo-categoria").textContent.toLowerCase().replace(/\s+/g, '_'));
       document.getElementById("resumen-pedido").style.display = "none";
       document.getElementById("confirmar-btn").style.display = "none";
-      document.getElementById("mensaje").textContent = "Pedido confirmado.";
-   });
+      document.getElementById("mensaje").textContent = "Pedido confirmado y guardado en Firebase.";
+    } catch (error) {
+      alert("Error guardando el pedido: " + error.message);
+    }
+  });
+
+  // Opcional: al cargar la página, puedes mostrar una categoría inicial y refrescar cantidades
+  window.addEventListener("DOMContentLoaded", () => {
+    const categoriaInicial = "bebestibles"; // Cambia según tu categoría por defecto
+    mostrarCategoria(categoriaInicial);
+  });
 </script>
 
-</body>
-</html>
