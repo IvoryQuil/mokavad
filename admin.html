@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Mokavad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+    h2, h3 {
+      margin-top: 2rem;
+      color: #f4b400;
+    }
+    .producto {
+      border: 1px solid #444;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      background: #222;
+      position: relative;
+    }
+    label {
+      display: block;
+      margin-top: 0.5rem;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 4px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    button {
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: #f4b400;
+      border: none;
+      color: #111;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #d1a000;
+    }
+    .btn-agregar {
+      margin-top: 1rem;
+      background: #2a7a2a;
+      border-radius: 4px;
+      padding: 0.4rem 1rem;
+      font-weight: normal;
+    }
+    .btn-agregar:hover {
+      background: #1e501e;
+    }
+    .btn-eliminar {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #a82a2a;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .btn-eliminar:hover {
+      background: #7a1d1d;
+    }
+    .subcategoria-container {
+      margin-left: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Panel de Administración Mokavad</h1>
+  <div id="contenido"></div>
+  <button onclick="guardarCambios()">Guardar cambios</button>
+
+  <script>
+    const URL = "https://mokavad-8700c-default-rtdb.firebaseio.com/platos.json";
+    let datosOriginales = {};
+
+    function esProducto(obj) {
+      return obj && typeof obj === 'object' && 'nombre' in obj && 'precio' in obj && 'stock' in obj;
+    }
+
+    // Crea un producto vacío por defecto
+    function nuevoProducto() {
+      return {
+        nombre: "",
+        precio: 0,
+        stock: 0,
+        descripcion: ""
+      };
+    }
+
+    function crearFormulario(datos) {
+      const contenedor = document.getElementById("contenido");
+      contenedor.innerHTML = "";
+
+      for (const categoria in datos) {
+        const titulo = document.createElement("h2");
+        titulo.textContent = categoria.replace(/_/g, ' ').toUpperCase();
+        contenedor.appendChild(titulo);
+
+        const grupo = datos[categoria];
+        const primeraClave = Object.keys(grupo)[0];
+
+        if (primeraClave && esProducto(grupo[primeraClave])) {
+          // Productos directos
+          const contProductos = document.createElement("div");
+          contProductos.className = "subcategoria-container";
+
+          for (const clave in grupo) {
+            const producto = grupo[clave];
+            contProductos.appendChild(crearProductoElemento(categoria, "", clave, producto));
+          }
+
+          // Botón agregar producto a categoría sin subcategoría
+          const btnAgregar = document.createElement("button");
+          btnAgregar.textContent = "Agregar producto";
+          btnAgregar.className = "btn-agregar";
+          btnAgregar.onclick = () => agregarProducto(categoria, "");
+
+          contenedor.appendChild(contProductos);
+          contenedor.appendChild(btnAgregar);
+
+        } else {
+          // Tiene subcategorías
+          for (const subcat in grupo) {
+            const subtitulo = document.createElement("h3");
+            subtitulo.textContent = subcat.replace(/_/g, ' ');
+            contenedor.appendChild(subtitulo);
+
+            const contSubcat = document.createElement("div");
+            contSubcat.className = "subcategoria-container";
+
+            const productos = grupo[subcat];
+            for (const clave in productos) {
+              const producto = productos[clave];
+              contSubcat.appendChild(crearProductoElemento(categoria, subcat, clave, producto));
+            }
+
+            // Botón agregar producto a subcategoría
+            const btnAgregar = document.createElement("button");
+            btnAgregar.textContent = "Agregar producto";
+            btnAgregar.className = "btn-agregar";
+            btnAgregar.onclick = () => agregarProducto(categoria, subcat);
+
+            contenedor.appendChild(contSubcat);
+            contenedor.appendChild(btnAgregar);
+          }
+        }
+      }
+    }
+
+    function crearProductoElemento(cat, subcat, key, producto) {
+      const div = document.createElement("div");
+      div.className = "producto";
+      div.dataset.cat = cat;
+      div.dataset.subcat = subcat;
+      div.dataset.key = key;
+
+      div.innerHTML = `
+        <label>Nombre:
+          <input type="text" data-cat="${cat}" data-subcat="${subcat}" data-key="${key}" data-field="nombre" value="${producto.nombre}">
+        </label>
+        <label>Precio:
+          <input type="number" data-cat="${cat}" data-subcat="${subcat}" data-key="${key}" data-field="precio" value="${producto.precio}">
+        </label>
+        <label>Stock:
+          <input type="number" data-cat="${cat}" data-subcat="${subcat}" data-key="${key}" data-field="stock" value="${producto.stock}">
+        </label>
+        <label>Descripción:
+          <textarea data-cat="${cat}" data-subcat="${subcat}" data-key="${key}" data-field="descripcion">${producto.descripcion || ""}</textarea>
+        </label>
+        <button class="btn-eliminar" title="Eliminar producto">×</button>
+      `;
+
+      const btnEliminar = div.querySelector(".btn-eliminar");
+      btnEliminar.onclick = () => eliminarProducto(cat, subcat, key, div);
+
+      return div;
+    }
+
+    function agregarProducto(categoria, subcategoria) {
+      // Generar key única
+      const keyNueva = "nuevo_" + Date.now();
+
+      if (subcategoria) {
+        if (!datosOriginales[categoria][subcategoria]) {
+          datosOriginales[categoria][subcategoria] = {};
+        }
+        datosOriginales[categoria][subcategoria][keyNueva] = nuevoProducto();
+      } else {
+        if (!datosOriginales[categoria]) {
+          datosOriginales[categoria] = {};
+        }
+        datosOriginales[categoria][keyNueva] = nuevoProducto();
+      }
+
+      crearFormulario(datosOriginales);
+    }
+
+    function eliminarProducto(categoria, subcategoria, key, elementoDiv) {
+      if (subcategoria) {
+        delete datosOriginales[categoria][subcategoria][key];
+        // Si la subcategoría queda vacía, se puede eliminar (opcional)
+        if (Object.keys(datosOriginales[categoria][subcategoria]).length === 0) {
+          delete datosOriginales[categoria][subcategoria];
+        }
+      } else {
+        delete datosOriginales[categoria][key];
+      }
+
+      // Remover elemento visualmente
+      elementoDiv.remove();
+    }
+
+    function guardarCambios() {
+      const inputs = document.querySelectorAll("input, textarea");
+      let nuevosDatos = JSON.parse(JSON.stringify(datosOriginales));
+
+      inputs.forEach(input => {
+        const cat = input.dataset.cat;
+        const subcat = input.dataset.subcat;
+        const key = input.dataset.key;
+        const field = input.dataset.field;
+        const value = input.type === "number" ? Number(input.value) : input.value;
+
+        if (subcat) {
+          if (nuevosDatos[cat] && nuevosDatos[cat][subcat] && nuevosDatos[cat][subcat][key]) {
+            nuevosDatos[cat][subcat][key][field] = value;
+          }
+        } else {
+          if (nuevosDatos[cat] && nuevosDatos[cat][key]) {
+            nuevosDatos[cat][key][field] = value;
+          }
+        }
+      });
+
+      fetch(URL, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nuevosDatos)
+      })
+      .then(res => {
+        if (res.ok) {
+          alert("Cambios guardados con éxito.");
+          location.reload();
+        } else {
+          alert("Error al guardar: " + res.statusText);
+        }
+      });
+    }
+
+    fetch(URL)
+      .then(res => res.json())
+      .then(data => {
+        datosOriginales = data;
+        crearFormulario(data);
+      })
+      .catch(err => alert("Error al cargar datos: " + err));
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pedidos desde Firebase</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f9f9f9; }
+  h2 { margin-top: 40px; }
+  table { border-collapse: collapse; width: 100%; margin-top: 10px; margin-bottom: 30px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  th { background-color: #eee; }
+  .pedido-header { background-color: #ddd; font-weight: bold; padding: 5px; }
+  #fechaSelector, #actualizarBtn { font-size: 16px; padding: 5px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<h1>Pedidos desde Firebase</h1>
+
+<label for="fechaSelector">Selecciona la fecha:</label>
+<select id="fechaSelector">
+  <option value="">Cargando fechas...</option>
+</select>
+<button id="actualizarBtn">Actualizar pedidos</button>
+
+<div id="pedidosContainer">Seleccione una fecha para ver los pedidos.</div>
+
+<script>
+let pedidosData = {};
+let fechaSeleccionada = "";
+
+async function cargarPedidos() {
+  const res = await fetch('https://mokavad-8700c-default-rtdb.firebaseio.com/pedidos.json');
+  if (!res.ok) throw new Error('Error al obtener los datos');
+  const data = await res.json();
+  return data;
+}
+
+function llenarSelectorFechas(fechas) {
+  const selector = document.getElementById('fechaSelector');
+  const fechaActual = selector.value;
+  selector.innerHTML = '<option value="">-- Seleccione una fecha --</option>';
+  fechas.forEach(fecha => {
+    const option = document.createElement('option');
+    option.value = fecha;
+    option.textContent = fecha;
+    selector.appendChild(option);
+  });
+  if (fechas.includes(fechaActual)) {
+    selector.value = fechaActual;
+  }
+}
+
+function mostrarPedidosDeFecha(fecha) {
+  const contenedor = document.getElementById('pedidosContainer');
+  if (!fecha) {
+    contenedor.innerHTML = 'Seleccione una fecha para ver los pedidos.';
+    return;
+  }
+
+  const pedidosDelDia = pedidosData[fecha];
+  if (!pedidosDelDia) {
+    contenedor.innerHTML = '<p>No hay pedidos para esta fecha.</p>';
+    return;
+  }
+
+  let htmlFinal = `<h2>Fecha: ${fecha}</h2>`;
+
+  for (const pedidoId of Object.keys(pedidosDelDia).sort((a,b) => +a - +b)) {
+    const pedido = pedidosDelDia[pedidoId];
+    if (!pedido || typeof pedido !== 'object') continue;
+    if (!pedido.numero_pedido) continue;
+
+    htmlFinal += `<div class="pedido">`;
+    htmlFinal += `<div class="pedido-header">Pedido #${pedido.numero_pedido} - Mesa: ${pedido.mesa ?? '-'}</div>`;
+
+    const productos = pedido.pedido;
+    if (!productos || typeof productos !== 'object' || Object.keys(productos).length === 0) {
+      htmlFinal += '<p>No hay productos en este pedido.</p>';
+      htmlFinal += '</div>';
+      continue;
+    }
+
+    htmlFinal += `<table><thead><tr>
+      <th>Producto</th>
+      <th>Cantidad</th>
+      <th>Precio</th>
+      <th>Subtotal</th>
+      </tr></thead><tbody>`;
+
+    for (const claveProd in productos) {
+      const prod = productos[claveProd];
+      if (!prod || typeof prod !== 'object') continue;
+
+      htmlFinal += `<tr>
+        <td>${prod.nombre || claveProd}</td>
+        <td>${prod.cantidad ?? '-'}</td>
+        <td>$${prod.precio?.toLocaleString('es-CL') ?? '-'}</td>
+        <td>$${prod.subtotal?.toLocaleString('es-CL') ?? '-'}</td>
+      </tr>`;
+    }
+
+    htmlFinal += `</tbody></table>`;
+    htmlFinal += `<p><strong>Total: </strong> $${pedido.total?.toLocaleString('es-CL') ?? '-'}</p>`;
+    htmlFinal += `<p><strong>Timestamp: </strong> ${pedido.timestamp ?? '-'}</p>`;
+    htmlFinal += `</div>`;
+  }
+
+  contenedor.innerHTML = htmlFinal;
+}
+
+async function actualizarPedidos() {
+  try {
+    const data = await cargarPedidos();
+    pedidosData = data || {};
+    const fechas = Object.keys(pedidosData).sort();
+    llenarSelectorFechas(fechas);
+    if (fechaSeleccionada && fechas.includes(fechaSeleccionada)) {
+      mostrarPedidosDeFecha(fechaSeleccionada);
+    } else {
+      fechaSeleccionada = "";
+      document.getElementById('pedidosContainer').innerHTML = "Seleccione una fecha para ver los pedidos.";
+    }
+  } catch (error) {
+    document.getElementById('pedidosContainer').innerHTML = `<p>Error cargando pedidos: ${error.message}</p>`;
+  }
+}
+
+document.getElementById('fechaSelector').addEventListener('change', (e) => {
+  fechaSeleccionada = e.target.value;
+  mostrarPedidosDeFecha(fechaSeleccionada);
+});
+
+document.getElementById('actualizarBtn').addEventListener('click', () => {
+  actualizarPedidos();
+});
+
+// Inicial
+actualizarPedidos();
+</script>
+</body>
+</html>
