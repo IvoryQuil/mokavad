@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Menú con Categorías y Pedido</title>
   <link rel="stylesheet" href="css/estilo.css" />
+
+  <!-- Mercado Pago SDK -->
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+
   <style>
     body {
       background-color: #121212;
@@ -199,12 +203,10 @@
       for (const key in data) {
         const valor = data[key];
         if (esProducto(valor)) {
-          // Producto sin subcategoría: id = nombre del producto (key)
           const id = key;
           productosSinSubcategoria[id] = valor;
           productosActuales[id] = valor;
         } else {
-          // Subcategorías
           subcategorias[key] = valor;
           for (const subkey in valor) {
             const id = `${key}__${subkey}`;
@@ -364,9 +366,29 @@
 
       if (!res.ok) throw new Error("Error al guardar el pedido");
 
+      // Mostrar mensaje
+      document.getElementById("mensaje").textContent = `Pedido #${nuevoID} guardado correctamente el ${fechaHoy} en la mesa ${mesaSeleccionada}.`;
+
+      // ---- Crear preferencia de pago Mercado Pago ----
+
+      // Enviar pedidoFinal y total completos al backend
+      const resPago = await fetch("https://19d4-181-73-48-176.ngrok-free.app/crear_preferencia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pedido: pedidoFinal, total })
+      });
+
+      const dataPago = await resPago.json();
+      console.log("Respuesta Mercado pago backend:", dataPago);
+      if (dataPago.init_point) {
+        window.location.href = dataPago.init_point;  // Redirigir a Mercado Pago
+      } else {
+        alert("Error generando el enlace de pago.");
+      }
+
       // Limpiar datos e interfaz
       productosPedidos = {};
-      selectMesa.value = ""; // Limpiar selección de mesa
+      selectMesa.value = "";
       const categoriaSeleccionada = document.querySelector('input[name="menu"]:checked');
       const categoriaNombre = categoriaSeleccionada
         ? categoriaSeleccionada.nextElementSibling.textContent.toLowerCase().replace(/\s+/g, '_')
@@ -375,7 +397,7 @@
       mostrarCategoria(categoriaNombre);
       document.getElementById("resumen-pedido").style.display = "none";
       document.getElementById("confirmar-btn").style.display = "none";
-      document.getElementById("mensaje").textContent = `Pedido #${nuevoID} guardado correctamente el ${fechaHoy} en la mesa ${mesaSeleccionada}.`;
+
     } catch (error) {
       alert("Error guardando el pedido: " + error.message);
     }
@@ -384,5 +406,3 @@
   // Cargar categoría por defecto al iniciar
   window.onload = () => mostrarCategoria('bebestibles');
 </script>
-</body>
-</html>
