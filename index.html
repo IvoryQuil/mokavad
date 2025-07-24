@@ -54,14 +54,18 @@
 
 <style>
   .imagen-base {
-    max-width: 12%;
+    max-width: 20%;
     height: auto;
     margin: 10px;
+    filter: brightness(1);
+    opacity: 1;
     transition: filter 0.5s ease;
   }
 
   .brillante {
-    animation: brillo 8s infinite ease-in-out alternate;
+    filter: brightness(0);
+    opacity: 0;
+    animation: iluminar 6s forwards ease-in-out;
   }
 
   .brillante.delay-1 {
@@ -72,34 +76,20 @@
     animation-delay: 4s;
   }
 
-  @keyframes brillo {
+  @keyframes iluminar {
     0% {
       filter: brightness(0);
       opacity: 0;
       transform: scale(0.95);
     }
-    25% {
-      filter: brightness(0.5);
-      opacity: 0.4;
-      transform: scale(1);
-    }
-    50% {
-      filter: brightness(1.5);
-      opacity: 1;
-      transform: scale(1.05);
-    }
-    75% {
-      filter: brightness(0.5);
-      opacity: 0.4;
-      transform: scale(1);
-    }
     100% {
-      filter: brightness(0);
-      opacity: 0;
-      transform: scale(0.95);
+      filter: brightness(1);
+      opacity: 1;
+      transform: scale(1);
     }
   }
 </style>
+
 
 
 <!-- Sección servicios -->
