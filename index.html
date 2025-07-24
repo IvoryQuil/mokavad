@@ -52,54 +52,114 @@
 
   </header>
 
-  <!-- Sección servicios -->
-  <section>
-    <div class="servicios-contenido">
-      <section id="servicios">
-        <h2>Precios de Servicios</h2>
+<style>
+  .imagen-base {
+    max-width: 12%;
+    height: auto;
+    margin: 10px;
+    transition: filter 0.5s ease;
+  }
 
-        <h3>🛠️ Bases de Datos</h3>
-        <img src="image/base.png" alt="Bases de datos" style="display: block; margin: 10px auto; max-width: 12%; height: auto;">
-        <p>Las bases de datos son el corazón de cualquier sistema digital moderno. Te permiten almacenar, organizar y acceder a la información esencial para tu negocio de manera rápida y segura. Ya sea que manejes un catálogo de productos, información de clientes, órdenes de venta o procesos automatizados, una base de datos bien diseñada hará que tu gestión sea más eficiente y confiable.</p>
-        <ul>
-          <li><strong><span class="servicio-verde">Simple (JSON, NoSQL):</span></strong> desde <strong>$30.000 CLP</strong><br>
-          Ideal para proyectos pequeños o startups que necesitan guardar datos básicos como listas de productos, formularios de contacto o registros simples.</li>
+  .brillante {
+    animation: brillo 8s infinite ease-in-out alternate;
+  }
 
-          <li><strong><span class="servicio-verde">Relacional (SQL, compleja):</span></strong> desde <strong>$70.000 CLP</strong><br>
-          Para negocios que manejan información estructurada con múltiples tablas relacionadas.</li>
+  .brillante.delay-1 {
+    animation-delay: 2s;
+  }
 
-          <li><strong><span class="servicio-verde">Tiempo real (Firebase, JSON):</span></strong> desde <strong>$50.000 CLP</strong><br>
-          Pensada para aplicaciones que requieren que los datos se actualicen al instante.</li>
-        </ul>
+  .brillante.delay-2 {
+    animation-delay: 4s;
+  }
 
-        <h3>💻 Páginas Web</h3>
-        <p>Tu página web es la ventana digital de tu negocio. Un buen sitio no solo debe ser atractivo, sino también funcional.</p>
-        <ul>
-          <li><strong><span class="servicio-verde">Página simple (1–5 secciones):</span></strong> desde <strong>$70.000 CLP</strong><br>
-          Perfecta para emprendedores que necesitan mostrar servicios, contacto y redes sociales.</li>
+  @keyframes brillo {
+    0% {
+      filter: brightness(0);
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    25% {
+      filter: brightness(0.5);
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      filter: brightness(1.5);
+      opacity: 1;
+      transform: scale(1.05);
+    }
+    75% {
+      filter: brightness(0.5);
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    100% {
+      filter: brightness(0);
+      opacity: 0;
+      transform: scale(0.95);
+    }
+  }
+</style>
 
-          <li><strong><span class="servicio-verde">Página dinámica (con funciones):</span></strong> desde <strong>$120.000 CLP</strong><br>
-          Incluye formularios, animaciones, sliders, etc.</li>
 
-          <li><strong><span class="servicio-verde">Página avanzada (con login, APIs, carrito):</span></strong> desde <strong>$250.000 CLP</strong><br>
-          Para quienes necesitan usuarios registrados, carritos de compra, etc.</li>
-        </ul>
+<!-- Sección servicios -->
+<section>
+  <div class="servicios-contenido">
+    <section id="servicios">
+      <h2>Precios de Servicios</h2>
 
-        <h3>⚙️ Automatizadores</h3>
-        <p>Los automatizadores permiten delegar tareas repetitivas, ahorrando tiempo y reduciendo errores.</p>
-        <ul>
-          <li><strong><span class="servicio-verde">Automatizador simple (n8n/Python):</span></strong> desde <strong>$30.000 CLP</strong><br>
-          Para tareas básicas como enviar correos automáticos.</li>
+      <h3>🛠️ Bases de Datos</h3>
 
-          <li><strong><span class="servicio-verde">Automatizador con APIs:</span></strong> desde <strong>$70.000 CLP</strong><br>
-          Ideal para integrar con Telegram, WhatsApp, etc.</li>
+      <!-- Imágenes alineadas con animación -->
+      <div style="text-align: center;">
+        <img src="image/base.png" alt="Bases de datos 1" class="imagen-base">
+        <img src="image/base2.png" alt="Bases de datos 2" class="imagen-base brillante delay-1">
+        <img src="image/base3.png" alt="Bases de datos 3" class="imagen-base brillante delay-2">
+      </div>
 
-          <li><strong><span class="servicio-verde">Avanzado (con lógica y errores):</span></strong> desde <strong>$150.000 CLP</strong><br>
-          Automatizaciones complejas que toman decisiones, detectan errores y generan reportes.</li>
-        </ul>
-      </section>
-    </div>
-  </section>
+      <p>Las bases de datos son el corazón de cualquier sistema digital moderno. Te permiten almacenar, organizar y acceder a la información esencial para tu negocio de manera rápida y segura. Ya sea que manejes un catálogo de productos, información de clientes, órdenes de venta o procesos automatizados, una base de datos bien diseñada hará que tu gestión sea más eficiente y confiable.</p>
+      
+      <ul>
+        <li><strong><span class="servicio-verde">Simple (JSON, NoSQL):</span></strong> desde <strong>$30.000 CLP</strong><br>
+        Ideal para proyectos pequeños o startups que necesitan guardar datos básicos como listas de productos, formularios de contacto o registros simples.</li>
+
+        <li><strong><span class="servicio-verde">Relacional (SQL, compleja):</span></strong> desde <strong>$70.000 CLP</strong><br>
+        Para negocios que manejan información estructurada con múltiples tablas relacionadas.</li>
+
+        <li><strong><span class="servicio-verde">Tiempo real (Firebase, JSON):</span></strong> desde <strong>$50.000 CLP</strong><br>
+        Pensada para aplicaciones que requieren que los datos se actualicen al instante.</li>
+      </ul>
+
+      <h3>💻 Páginas Web</h3>
+      <p>Tu página web es la ventana digital de tu negocio. Un buen sitio no solo debe ser atractivo, sino también funcional.</p>
+      <ul>
+        <li><strong><span class="servicio-verde">Página simple (1–5 secciones):</span></strong> desde <strong>$70.000 CLP</strong><br>
+        Perfecta para emprendedores que necesitan mostrar servicios, contacto y redes sociales.</li>
+
+        <li><strong><span class="servicio-verde">Página dinámica (con funciones):</span></strong> desde <strong>$120.000 CLP</strong><br>
+        Incluye formularios, animaciones, sliders, etc.</li>
+
+        <li><strong><span class="servicio-verde">Página avanzada (con login, APIs, carrito):</span></strong> desde <strong>$250.000 CLP</strong><br>
+        Para quienes necesitan usuarios registrados, carritos de compra, etc.</li>
+      </ul>
+
+      <h3>⚙️ Automatizadores</h3>
+      <p>Los automatizadores permiten delegar tareas repetitivas, ahorrando tiempo y reduciendo errores.</p>
+      <ul>
+        <li><strong><span class="servicio-verde">Automatizador simple (n8n/Python):</span></strong> desde <strong>$30.000 CLP</strong><br>
+        Para tareas básicas como enviar correos automáticos.</li>
+
+        <li><strong><span class="servicio-verde">Automatizador con APIs:</span></strong> desde <strong>$70.000 CLP</strong><br>
+        Ideal para integrar con Telegram, WhatsApp, etc.</li>
+
+        <li><strong><span class="servicio-verde">Avanzado (con lógica y errores):</span></strong> desde <strong>$150.000 CLP</strong><br>
+        Automatizaciones complejas que toman decisiones, detectan errores y generan reportes.</li>
+      </ul>
+    </section>
+  </div>
+</section>
+
+
 
   <div class="container">
     <section id="sobre-mi">
