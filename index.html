@@ -62,6 +62,7 @@
     transition: filter 0.5s ease;
   }
 
+  /* Animación de brillo para base2 y base3 */
   .brillante {
     filter: brightness(0);
     opacity: 0;
@@ -88,9 +89,21 @@
       transform: scale(1);
     }
   }
+
+  /* Animación zoom para base.png */
+  .zoom-ciclo {
+    animation: zoomInOut 2s infinite ease-in-out;
+  }
+
+  @keyframes zoomInOut {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
 </style>
-
-
 
 <!-- Sección servicios -->
 <section>
@@ -98,17 +111,20 @@
     <section id="servicios">
       <h2>Precios de Servicios</h2>
 
-      <h3>🛠️ Bases de Datos</h3>
+      <!-- Encabezado con imagen -->
+      <h3>
+        <img src="image/base.png" alt="Base de Datos" class="imagen-base" style="max-width: 30px; vertical-align: middle; margin-right: 8px;">
+        Bases de Datos
+      </h3>
 
-      <!-- Imágenes alineadas con animación -->
-      <div style="text-align: center;">
-        <img src="image/base.png" alt="Bases de datos 1" class="imagen-base">
-        <img src="image/base2.png" alt="Bases de datos 2" class="imagen-base brillante delay-1">
-        <img src="image/base3.png" alt="Bases de datos 3" class="imagen-base brillante delay-2">
+      <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+        <img src="image/base2.png" alt="Bases de datos 2" class="imagen-base brillante delay-1" style="order: 1;">
+        <img src="image/base.png" alt="Bases de datos 1" class="imagen-base zoom-ciclo" style="order: 2;">
+        <img src="image/base3.png" alt="Bases de datos 3" class="imagen-base brillante delay-2" style="order: 3;">
       </div>
 
       <p>Las bases de datos son el corazón de cualquier sistema digital moderno. Te permiten almacenar, organizar y acceder a la información esencial para tu negocio de manera rápida y segura. Ya sea que manejes un catálogo de productos, información de clientes, órdenes de venta o procesos automatizados, una base de datos bien diseñada hará que tu gestión sea más eficiente y confiable.</p>
-      
+
       <ul>
         <li><strong><span class="servicio-verde">Simple (JSON, NoSQL):</span></strong> desde <strong>$30.000 CLP</strong><br>
         Ideal para proyectos pequeños o startups que necesitan guardar datos básicos como listas de productos, formularios de contacto o registros simples.</li>
@@ -120,8 +136,14 @@
         Pensada para aplicaciones que requieren que los datos se actualicen al instante.</li>
       </ul>
 
-      <h3>💻 Páginas Web</h3>
+      <!-- Encabezado con imagen -->
+      <h3>
+        <img src="image/pagina.png" alt="Página Web" class="imagen-base" style="max-width: 30px; vertical-align: middle; margin-right: 8px;">
+        Páginas Web
+      </h3>
+
       <p>Tu página web es la ventana digital de tu negocio. Un buen sitio no solo debe ser atractivo, sino también funcional.</p>
+
       <ul>
         <li><strong><span class="servicio-verde">Página simple (1–5 secciones):</span></strong> desde <strong>$70.000 CLP</strong><br>
         Perfecta para emprendedores que necesitan mostrar servicios, contacto y redes sociales.</li>
@@ -133,8 +155,19 @@
         Para quienes necesitan usuarios registrados, carritos de compra, etc.</li>
       </ul>
 
-      <h3>⚙️ Automatizadores</h3>
+      <!-- Encabezado con imagen -->
+      <h3>
+        <img src="image/bot.png" alt="Automatizadores" class="imagen-base" style="max-width: 30px; vertical-align: middle; margin-right: 8px;">
+        Automatizadores
+      </h3>
+
+      <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+        <img src="image/bot.png" alt="Bot 1" class="imagen-base">
+        <img src="image/bot2.png" alt="Bot 2" class="imagen-base">
+      </div>
+
       <p>Los automatizadores permiten delegar tareas repetitivas, ahorrando tiempo y reduciendo errores.</p>
+
       <ul>
         <li><strong><span class="servicio-verde">Automatizador simple (n8n/Python):</span></strong> desde <strong>$30.000 CLP</strong><br>
         Para tareas básicas como enviar correos automáticos.</li>
@@ -148,8 +181,6 @@
     </section>
   </div>
 </section>
-
-
 
   <div class="container">
     <section id="sobre-mi">
